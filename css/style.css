@@ -58,60 +58,67 @@ img  {
   top: 0;
   width: 1050px;
   height: 602px;
-  background: rgba(200,200,200,0.85);
+  background: #A8C5C7 url('../assets/intro2.png') center / 1050px 602px no-repeat;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
-.picker-options {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.picker-option {
-  font-family: 'Dosis', sans-serif;
-  font-size: 32px;
-  width: 140px;
-  height: 140px;
-  padding: 0;
-  background: linear-gradient( #cd7d7d 20%, #c08f56 100%);
-  color: #fff;
+#start-game-btn {
+  position: absolute;
+  left: 334px;
+  top: 384px;
+  width: 382px;
+  height: 99px;
+  background: transparent;
   border: none;
-  border-radius: 16px;
+  padding: 0;
   cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  display: flex;
+  font-size: 0;       /* hide the label text — the artwork provides it */
+  color: transparent;
+  outline: none;
+}
+
+#level-intro {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background:#e1d4c0;
+  z-index: 150;
+  display: none;
   align-items: center;
   justify-content: center;
 }
 
-.picker-option img {
-  max-width: 85%;
-  max-height: 85%;
-  object-fit: contain;
-  height: auto;
-  position: relative;
-  margin: 0;
-}
+#level-intro.active { display: flex; }
 
-.picker-option:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+.level-intro-content {
+  text-align: center;
+  font-family: 'Bungee Inline', cursive;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
 }
+.level-intro-title { font-size: 72px; color: #C8302C; }
+.level-intro-label { font-size: 48px; color: #333; margin-top: 30px; }
+.level-intro-img   { width: 168px; height: auto; margin-top: 35px; margin-left: 0; position: static; }
+.level-intro-score { font-size: 36px; color: #333; margin-top: 35px; min-height: 1em; }
 
-.picker-option:active {
-  transform: translateY(-2px);
+@keyframes levelIntroFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
+#level-intro.active .level-intro-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+#level-intro.active .level-intro-content > *:nth-child(2) { animation-delay: 0.10s; }
+#level-intro.active .level-intro-content > *:nth-child(3) { animation-delay: 0.20s; }
+#level-intro.active .level-intro-content > *:nth-child(4) { animation-delay: 0.30s; }
 
-#ham-btn {
-  width: 30px;
+#level-intro.fading {
+  animation: levelIntroFadeOut 0.5s ease-out forwards;
 }
 
 .no-title-screen {
@@ -291,20 +298,22 @@ img  {
   top: 0;
   width: 1050px;
   height: 602px;
-  background: rgba(200,200,200,0.85);
+  background: #e1d4c0;
   z-index: 100;
   display: none;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .ending-screen-text {
-  font-family: 'Dosis', sans-serif;
+  font-family: 'Bungee Inline', cursive;
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   line-height: 1.1;
-  gap: 50px;
+  gap: 28px;
 }
 
 @keyframes textReveal {
@@ -325,52 +334,31 @@ img  {
 
 .ending-screen-text > *:nth-child(4) { animation-delay: 0.24s; }
 
-.or-divider {
+.game-over-text {
+  font-size: 72px;
+  color: #C8302C;
+}
+
+.ending-score-text {
+  margin-top: 16px;
   font-size: 48px;
   color: #333;
 }
 
-.new-object-btn {
-  font-family: 'Dosis', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 10px 22px;
-  background: linear-gradient( #cd7d7d 20%, #c08f56 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  margin-left: 20px;
-}
-
-.new-object-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
-.new-object-btn:active {
-  transform: translateY(-2px);
-}
-
-.game-over-text {
-  font-size: 48px;
-}
-
-.ending-score-text {
-  font-size: 48px;
-}
-
 .high-score-text {
-  font-size: 48px;
+  font-size: 36px;
   color: #C8302C;
+}
+
+#restart-instructions {
+  font-size: 28px;
+  color: #333;
+  margin-top: 24px;
 }
 
 .high-score-number {
   display: inline-block;
-  margin-left: 38px;
+  margin-left: 24px;
 }
 
 @media (pointer: coarse) {
