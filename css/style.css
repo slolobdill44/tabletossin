@@ -2,12 +2,37 @@
 #canvas-wrapper {
   transform-origin: top left;
   width: 1050px;
+  height: 602px;
   position: relative;
   left : 3%;
   right-padding: 3%;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  overflow: hidden;
+}
+
+/* The freeze zoom is applied to the canvas element directly so the wrapper's
+   outer size stays fixed and only the canvas content scales.
+   TUNE THE ZOOM SPEED HERE: change `transform 12.8s` and the matching
+   ZOOM_DURATION_MS constant in lib/hamhuckin.js together. */
+#canvas-wrapper canvas {
+  transition: transform 2.2s ease-out;
+  transform-origin: top left;
+}
+
+#canvas-wrapper.zoom-snap canvas {
+  transition: none;
+}
+
+/* Hide all HUD overlays during the bonus-end freeze. The canvas zooms but
+   the HUD elements are siblings (not children) of the canvas, so without
+   this they'd stay fixed at their original pixel positions while the canvas
+   scales around them. */
+#canvas-wrapper.frozen .shots-text,
+#canvas-wrapper.frozen .score-text,
+#canvas-wrapper.frozen .welcome-badge {
+  display: none;
 }
 
 #canvas-wrapper canvas {
@@ -121,29 +146,43 @@ img  {
   animation: levelIntroFadeOut 0.5s ease-out forwards;
 }
 
-.no-title-screen {
+/* Bonus-ended overlay — separate DOM element so it can layer over the
+   level-intro for a seamless splash → next-level transition. Higher z-index
+   so when both are active the bonus-end covers the level-intro underneath. */
+#bonus-end-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background: #e1d4c0;
+  z-index: 160;
   display: none;
+  align-items: center;
+  justify-content: center;
 }
+#bonus-end-screen.active { display: flex; }
 
-.title-screen-text {
-  font-family: 'Dosis', sans-serif;
+.bonus-end-content {
   text-align: center;
+  font-family: 'Bungee Inline', cursive;
   display: flex;
   flex-direction: column;
+  align-items: center;
   line-height: 1.1;
-  gap: 44px;
 }
+.bonus-end-title  { font-size: 72px; color: #C8302C; }
+.bonus-end-reason { font-size: 42px; color: #333; margin-top: 24px; }
+.bonus-end-score  { font-size: 36px; color: #333; margin-top: 35px; }
 
-.welcome-text {
-  font-size: 48px;
+#bonus-end-screen.active .bonus-end-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(2) { animation-delay: 0.10s; }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(3) { animation-delay: 0.20s; }
 
-.game-instructions {
-  font-size: 40px;
-}
-
-.start-instructions {
-  font-size: 40px;
+#bonus-end-screen.fading {
+  animation: levelIntroFadeOut 0.5s ease-out forwards;
 }
 
 #game-screen {
@@ -321,15 +360,12 @@ img  {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.title-screen-text > *,
 .ending-screen-text > * {
   animation: textReveal 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.title-screen-text > *:nth-child(2),
 .ending-screen-text > *:nth-child(2) { animation-delay: 0.08s; }
 
-.title-screen-text > *:nth-child(3),
 .ending-screen-text > *:nth-child(3) { animation-delay: 0.16s; }
 
 .ending-screen-text > *:nth-child(4) { animation-delay: 0.24s; }
