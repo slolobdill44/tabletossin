@@ -63,6 +63,16 @@
       </div>
     </div>
 
+    <div id='round-end-screen'>
+      <div class='bonus-end-content'>
+        <div class='bonus-end-title'>Round Ended</div>
+        <div class='bonus-end-reason'> </div>
+        <div class='bonus-end-score'>Level score: 0</div>
+        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-continue' id='round-end-continue'>Press any key to continue</div>
+      </div>
+    </div>
+
     <div id='ending-screen'>
       <div class='ending-screen-text'>
         <div class='game-over-text'>Game Complete!</div>
@@ -78,6 +88,7 @@
       if (window.matchMedia('(pointer: coarse)').matches) {
         document.getElementById('restart-instructions').textContent = 'Tap anywhere to restart';
         document.getElementById('bonus-end-continue').textContent = 'Tap to continue';
+        document.getElementById('round-end-continue').textContent = 'Tap to continue';
       }
     </script>
   </body>

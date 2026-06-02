@@ -200,6 +200,33 @@ img  {
 #bonus-end-screen.active .bonus-end-content > *:nth-child(4) { animation-delay: 0.30s; }
 #bonus-end-screen.active .bonus-end-content > *:nth-child(5) { animation-delay: 0.40s; }
 
+/* Round-end overlay — shown when a level ends WITHOUT entering bonus mode
+   (player ran out of tosses without going perfect). Same content shape as
+   bonus-end-screen, but fully opaque #e1d4c0 (covers the play field rather
+   than leaving objects visible). */
+#round-end-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background: #e1d4c0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#round-end-screen.active { display: flex; }
+
+#round-end-screen.active .bonus-end-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+#round-end-screen.active .bonus-end-content > *:nth-child(2) { animation-delay: 0.10s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(3) { animation-delay: 0.20s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(4) { animation-delay: 0.30s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(5) { animation-delay: 0.40s; }
+
 #game-screen {
   margin-left: 0;
   margin-top: 80px;
