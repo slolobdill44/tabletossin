@@ -22,6 +22,8 @@
     </header>
 
     <div id="canvas-wrapper">
+    <div class="canvas-bg canvas-bg-diner"></div>
+    <div class="canvas-bg canvas-bg-flat"></div>
     <div class="shots-text">
       <span class="shots-label">Tosses Left:</span><div class="shots-number">5</div>
       <div class="bonus-text">
@@ -46,6 +48,7 @@
         <div class='level-intro-title'>Level 1</div>
         <div class='level-intro-label'>Hamburger</div>
         <img class='level-intro-img' src='' alt=''>
+        <div class='level-intro-last-score'></div>
         <div class='level-intro-score'></div>
       </div>
     </div>
@@ -53,8 +56,10 @@
     <div id='bonus-end-screen'>
       <div class='bonus-end-content'>
         <div class='bonus-end-title'>Bonus Ended</div>
-        <div class='bonus-end-reason'>An object fell off</div>
+        <div class='bonus-end-reason'>An object fell off!</div>
         <div class='bonus-end-score'>Level score: 0</div>
+        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-continue' id='bonus-end-continue'>Press any key to continue</div>
       </div>
     </div>
 
@@ -63,7 +68,7 @@
         <div class='game-over-text'>Game Complete!</div>
         <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
         <div class='high-score-text'>Session High Score: <div class='high-score-number'>0</div></div>
-        <div class='game-over-text' id='restart-instructions'>Click anywhere to restart</div>
+        <div class='game-over-text' id='restart-instructions'>Press any key to restart</div>
       </div>
     </div>
 
@@ -72,6 +77,7 @@
     <script>
       if (window.matchMedia('(pointer: coarse)').matches) {
         document.getElementById('restart-instructions').textContent = 'Tap anywhere to restart';
+        document.getElementById('bonus-end-continue').textContent = 'Tap to continue';
       }
     </script>
   </body>
