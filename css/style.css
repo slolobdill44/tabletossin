@@ -10,9 +10,49 @@
   -webkit-touch-callout: none;
 }
 
+/* Hide HUD chrome during the bonus-end freeze so the bonus-end text reads
+   cleanly against the flat canvas background. The render-canvas itself swaps
+   to a flat color in JS; these rules hide the score/shots overlays that sit
+   on top of the canvas. */
+#canvas-wrapper.frozen .shots-text,
+#canvas-wrapper.frozen .score-text,
+#canvas-wrapper.frozen .welcome-badge {
+  display: none;
+}
+
 #canvas-wrapper canvas {
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  /* Above the HUD overlays (z-index 10) so flying hammos render in front of
+   * the shots/score text. The canvas is transparent, so the HUD still shows
+   * through wherever no hammo is drawn — the only visible effect is hammos
+   * occluding the HUD as they fly past. */
+  z-index: 20;
 }
+
+/* Canvas backdrops live behind the (transparent) Matter canvas inside
+   #canvas-wrapper. Only one is visible at a time: the diner art during play,
+   the flat color during the bonus-end freeze. Swapping which is visible is
+   pure CSS — no Matter render-option fiddling. */
+.canvas-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  z-index: 0;
+  pointer-events: none;
+}
+.canvas-bg-diner {
+  background: url('../assets/dinerandscore.png') center / cover no-repeat;
+  display: block;
+}
+.canvas-bg-flat {
+  background: #e1d4c0;
+  display: none;
+}
+#canvas-wrapper.frozen .canvas-bg-diner { display: none; }
+#canvas-wrapper.frozen .canvas-bg-flat  { display: block; }
 
 #info-nav {
   position: absolute;
@@ -58,86 +98,138 @@ img  {
   top: 0;
   width: 1050px;
   height: 602px;
-  background: rgba(200,200,200,0.85);
+  background: #A8C5C7 url('../assets/intro2.png') center / 1050px 602px no-repeat;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
-.picker-options {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.picker-option {
-  font-family: 'Dosis', sans-serif;
-  font-size: 32px;
-  width: 140px;
-  height: 140px;
-  padding: 0;
-  background: linear-gradient( #cd7d7d 20%, #c08f56 100%);
-  color: #fff;
+#start-game-btn {
+  position: absolute;
+  left: 334px;
+  top: 384px;
+  width: 382px;
+  height: 99px;
+  background: transparent;
   border: none;
-  border-radius: 16px;
+  padding: 0;
   cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  display: flex;
+  font-size: 0;       /* hide the label text — the artwork provides it */
+  color: transparent;
+  outline: none;
+}
+
+#level-intro {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background:#e1d4c0;
+  z-index: 150;
+  display: none;
   align-items: center;
   justify-content: center;
 }
 
-.picker-option img {
-  max-width: 85%;
-  max-height: 85%;
-  object-fit: contain;
-  height: auto;
-  position: relative;
-  margin: 0;
-}
+#level-intro.active { display: flex; }
 
-.picker-option:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
-.picker-option:active {
-  transform: translateY(-2px);
-}
-
-#ham-btn {
-  width: 30px;
-}
-
-.no-title-screen {
-  display: none;
-}
-
-.title-screen-text {
-  font-family: 'Dosis', sans-serif;
+.level-intro-content {
   text-align: center;
+  font-family: 'Bungee Inline', cursive;
   display: flex;
   flex-direction: column;
+  align-items: center;
   line-height: 1.1;
-  gap: 44px;
+}
+.level-intro-title      { font-size: 72px; color: #C8302C; }
+.level-intro-label      { font-size: 48px; color: #333; margin-top: 30px; }
+.level-intro-img        { width: 168px; height: auto; margin-top: 35px; margin-left: 0; position: static; }
+.level-intro-last-score { font-size: 32px; color: #333; margin-top: 30px; min-height: 1em; }
+.level-intro-score      { font-size: 36px; color: #333; margin-top: 20px; min-height: 1em; }
+
+@keyframes levelIntroFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+#level-intro.active .level-intro-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+#level-intro.active .level-intro-content > *:nth-child(2) { animation-delay: 0.10s; }
+#level-intro.active .level-intro-content > *:nth-child(3) { animation-delay: 0.20s; }
+#level-intro.active .level-intro-content > *:nth-child(4) { animation-delay: 0.30s; }
+#level-intro.active .level-intro-content > *:nth-child(5) { animation-delay: 0.40s; }
+
+#level-intro.fading {
+  animation: levelIntroFadeOut 0.5s ease-out forwards;
 }
 
-.welcome-text {
-  font-size: 48px;
+/* Bonus-ended overlay — transparent so the live (frozen) canvas shows the
+   in-play objects + red circle behind the text. The render canvas swaps its
+   own background to a flat #e1d4c0 in JS during freeze, so the scene reads
+   cleanly without competing with the diner artwork. */
+#bonus-end-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 357px;
+  background: transparent;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
+#bonus-end-screen.active { display: flex; }
 
-.game-instructions {
-  font-size: 40px;
+.bonus-end-content {
+  text-align: center;
+  font-family: 'Bungee Inline', cursive;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
 }
+.bonus-end-title    { font-size: 64px; color: #C8302C; }
+.bonus-end-reason   { font-size: 36px; color: #333; margin-top: 18px; }
+.bonus-end-score    { font-size: 30px; color: #333; margin-top: 24px; }
+.bonus-end-total    { font-size: 30px; color: #333; margin-top: 14px; }
+.bonus-end-continue { font-size: 24px; color: #333; margin-top: 28px; opacity: 0.85; }
 
-.start-instructions {
-  font-size: 40px;
+#bonus-end-screen.active .bonus-end-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(2) { animation-delay: 0.10s; }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(3) { animation-delay: 0.20s; }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(4) { animation-delay: 0.30s; }
+#bonus-end-screen.active .bonus-end-content > *:nth-child(5) { animation-delay: 0.40s; }
+
+/* Round-end overlay — shown when a level ends WITHOUT entering bonus mode
+   (player ran out of tosses without going perfect). Same content shape as
+   bonus-end-screen, but fully opaque #e1d4c0 (covers the play field rather
+   than leaving objects visible). */
+#round-end-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background: #e1d4c0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#round-end-screen.active { display: flex; }
+
+#round-end-screen.active .bonus-end-content > * {
+  animation: textReveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+#round-end-screen.active .bonus-end-content > *:nth-child(2) { animation-delay: 0.10s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(3) { animation-delay: 0.20s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(4) { animation-delay: 0.30s; }
+#round-end-screen.active .bonus-end-content > *:nth-child(5) { animation-delay: 0.40s; }
 
 #game-screen {
   margin-left: 0;
@@ -154,6 +246,7 @@ img  {
   text-align: center;
   font-size: 29px;
   position: absolute;
+  z-index: 10;
 }
 
 .score-number {
@@ -170,6 +263,7 @@ img  {
   text-align: center;
   font-size: 29px;
   position: absolute;
+  z-index: 10;
 }
 
 .shots-number {
@@ -291,20 +385,22 @@ img  {
   top: 0;
   width: 1050px;
   height: 602px;
-  background: rgba(200,200,200,0.85);
+  background: #e1d4c0;
   z-index: 100;
   display: none;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .ending-screen-text {
-  font-family: 'Dosis', sans-serif;
+  font-family: 'Bungee Inline', cursive;
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   line-height: 1.1;
-  gap: 50px;
+  gap: 28px;
 }
 
 @keyframes textReveal {
@@ -312,65 +408,41 @@ img  {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.title-screen-text > *,
 .ending-screen-text > * {
   animation: textReveal 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.title-screen-text > *:nth-child(2),
 .ending-screen-text > *:nth-child(2) { animation-delay: 0.08s; }
 
-.title-screen-text > *:nth-child(3),
 .ending-screen-text > *:nth-child(3) { animation-delay: 0.16s; }
 
 .ending-screen-text > *:nth-child(4) { animation-delay: 0.24s; }
 
-.or-divider {
+.game-over-text {
+  font-size: 72px;
+  color: #C8302C;
+}
+
+.ending-score-text {
+  margin-top: 16px;
   font-size: 48px;
   color: #333;
 }
 
-.new-object-btn {
-  font-family: 'Dosis', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 10px 22px;
-  background: linear-gradient( #cd7d7d 20%, #c08f56 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  margin-left: 20px;
-}
-
-.new-object-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
-.new-object-btn:active {
-  transform: translateY(-2px);
-}
-
-.game-over-text {
-  font-size: 48px;
-}
-
-.ending-score-text {
-  font-size: 48px;
-}
-
 .high-score-text {
-  font-size: 48px;
+  font-size: 36px;
   color: #C8302C;
+}
+
+#restart-instructions {
+  font-size: 28px;
+  color: #333;
+  margin-top: 24px;
 }
 
 .high-score-number {
   display: inline-block;
-  margin-left: 38px;
+  margin-left: 24px;
 }
 
 @media (pointer: coarse) {

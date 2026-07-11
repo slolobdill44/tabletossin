@@ -3,7 +3,7 @@
 
 ## Next stuff
 
-- Make new intro screen
+- Intro screen should say 5 in a row gets you bonus shots
 - Bonus game over screen tells you an object fell off
 - Do levels of 1, 2, 3. one for each object
 - Make bonus mode zoom out if stack gets big enough

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Table Tosser</title>
+    <title>Table Tossin'</title>
   </head>
 
   <link href="https://fonts.googleapis.com/css?family=Dosis:700|Bungee+Inline" rel="stylesheet">
@@ -16,12 +16,14 @@
   <body id="game-screen" onload="gameStart()">
     <header id="info-nav">
       <p>
-        <strong class="title-text">Table Tosser</strong>
+        <strong class="title-text">Table Tossin'</strong>
         <a href="https://github.com/slolobdill44"><img class="github-img" src="assets/github.png" /></a>
       </p>
     </header>
 
     <div id="canvas-wrapper">
+    <div class="canvas-bg canvas-bg-diner"></div>
+    <div class="canvas-bg canvas-bg-flat"></div>
     <div class="shots-text">
       <span class="shots-label">Tosses Left:</span><div class="shots-number">5</div>
       <div class="bonus-text">
@@ -38,25 +40,45 @@
     <div class="stack-height"></div>
 
     <div id='title-screen'>
-      <div class='title-screen-text'>
-        <div class='welcome-text'>Welcome to Table Tosser</div>
-        <div class='game-instructions' id='game-instructions'>Press and hold spacebar to aim!</div>
-        <div class='game-instructions' id='game-instructions'>Choose an item:</div>
-        <div class='picker-options'>
-          <button class='picker-option' data-throwable='burger' ><img src='assets/hamburger.png' alt='Burger'></button>
-          <button class='picker-option' data-throwable='fish'><img src='assets/fish.png' alt='Fish'></button>
-          <button class='picker-option' data-throwable='rubberDuck'><img src='assets/rubber-duck.png' alt='Rubber Duck'></button>
-        </div>
+      <button id='start-game-btn' type='button'>Start Game</button>
+    </div>
+
+    <div id='level-intro'>
+      <div class='level-intro-content'>
+        <div class='level-intro-title'>Level 1</div>
+        <div class='level-intro-label'>Hamburger</div>
+        <img class='level-intro-img' src='' alt=''>
+        <div class='level-intro-last-score'></div>
+        <div class='level-intro-score'></div>
+      </div>
+    </div>
+
+    <div id='bonus-end-screen'>
+      <div class='bonus-end-content'>
+        <div class='bonus-end-title'>Bonus Ended</div>
+        <div class='bonus-end-reason'>An object fell off!</div>
+        <div class='bonus-end-score'>Level score: 0</div>
+        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-continue' id='bonus-end-continue'>Press any key to continue</div>
+      </div>
+    </div>
+
+    <div id='round-end-screen'>
+      <div class='bonus-end-content'>
+        <div class='bonus-end-title'>Round Ended</div>
+        <div class='bonus-end-reason'> </div>
+        <div class='bonus-end-score'>Level score: 0</div>
+        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-continue' id='round-end-continue'>Press any key to continue</div>
       </div>
     </div>
 
     <div id='ending-screen'>
       <div class='ending-screen-text'>
-        <div class='game-over-text'>Game Over!</div>
-        <div class='ending-score-text'>Your score was: <div class='score-number'>0</div></div>
+        <div class='game-over-text'>Game Complete!</div>
+        <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
         <div class='high-score-text'>Session High Score: <div class='high-score-number'>0</div></div>
-        <div class='game-over-text' id='restart-instructions'>Click anywhere to restart</div>
-        <div class='or-divider'>or <button id='choose-new-object' class='new-object-btn'>click here to toss something else</button></div>
+        <div class='game-over-text' id='restart-instructions'>Press any key to restart</div>
       </div>
     </div>
 
@@ -64,8 +86,9 @@
 
     <script>
       if (window.matchMedia('(pointer: coarse)').matches) {
-        document.getElementById('game-instructions').textContent = 'Tap and hold to aim!';
         document.getElementById('restart-instructions').textContent = 'Tap anywhere to restart';
+        document.getElementById('bonus-end-continue').textContent = 'Tap to continue';
+        document.getElementById('round-end-continue').textContent = 'Tap to continue';
       }
     </script>
   </body>
