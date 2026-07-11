@@ -23,7 +23,11 @@
 #canvas-wrapper canvas {
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  z-index: 1;
+  /* Above the HUD overlays (z-index 10) so flying hammos render in front of
+   * the shots/score text. The canvas is transparent, so the HUD still shows
+   * through wherever no hammo is drawn — the only visible effect is hammos
+   * occluding the HUD as they fly past. */
+  z-index: 20;
 }
 
 /* Canvas backdrops live behind the (transparent) Matter canvas inside
