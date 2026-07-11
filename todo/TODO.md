@@ -10,20 +10,100 @@
 - Leaderboard that can't be hacked
 
 
-## 1. Next.js Migration + Vercel Leaderboard
+## 1. Hosted Leaderboard (Vercel serverless functions — no Next.js port)
 
-Port the game to a Next.js app and add a persistent leaderboard backed by Vercel Postgres.
+Make the leaderboard global by backing it with a database behind two Vercel
+serverless functions. **Do NOT port the game to Next.js for this.** The game is
+a zero-build static site that already deploys to Vercel, and Vercel runs any
+`api/*.js` file in the repo as a serverless function with no framework and no
+build step. The Next.js port was where all the risk in the old plan lived
+(wrapping the imperative `gameStart()` world in a React `useEffect`, moving
+assets, adding a build) and it buys the leaderboard nothing. Revisit Next.js
+only if the site someday needs real pages/SSR (e.g. item 3 at scale).
+
+**Architecture:**
+
+```
+browser (static index.html, unchanged game code)
+  │  leaderboardLoad()  ──────────  GET  /api/scores        → top 10
+  │  game start        ──────────  POST /api/session       → one-time token
+  │  leaderboardSubmit(entry) ───  POST /api/scores        → insert if valid
+  ▼
+api/scores.js + api/session.js   (Vercel serverless, Node)
+  ▼
+Postgres  ("Vercel Postgres" is now Neon via the Vercel Marketplace;
+           it injects DATABASE_URL automatically)
+```
+
+**Client side is already done.** The local leaderboard (fable-work branch)
+isolates storage behind two Promise-returning functions in `lib/hamhuckin.js` —
+`leaderboardLoad()` and `leaderboardSubmit(entry)`. Phase 2 replaces only their
+bodies with `fetch()` calls; no UI code changes. Keep localStorage as the
+fallback when fetch fails, so offline play and `open index.html` local dev
+keep working (`vercel dev` runs the functions locally when you want them).
 
 **What needs to happen:**
-- Scaffold a new Next.js app (App Router) and move the game into it — `index.html` becomes `app/page.js`, the game canvas renders inside a client component, static assets go in `/public`
-- Move `lib/hamhuckin.js` logic into a React `useEffect` that initializes the Matter.js engine on mount; keep all game logic intact
-- Add a `/api/scores` route (Next.js Route Handler) that accepts POST (submit score + name) and GET (return top 10 scores), backed by Vercel Postgres
-- Add a leaderboard panel to the game-over screen showing the top 10 scores fetched from the API
-- Add a name input to the game-over screen so users can submit their score
-- Deploy to Vercel; configure Vercel Postgres in the dashboard and add the connection string env var
+- `api/session.js` — POST issues a one-time session token (random UUID) and
+  records its creation time in a `sessions` table. Called by the client at
+  game start.
+- `api/scores.js` — GET returns the top 10 (`name`, `score`). POST accepts
+  `{ token, name, score }` and inserts only if ALL of:
+  - token exists, is unused, and is younger than ~2 hours; mark it used
+    (one submission per game played)
+  - **duration bound**: elapsed time since the token was issued must be at
+    least the minimum a real game takes, and — because bonus shots arrive on
+    a fixed 2.5 s timer — the score itself is bounded by a function of
+    elapsed time. A score of 40 arriving 90 seconds after game start is
+    physically impossible; reject it. This is the highest-value anti-cheat
+    per line of code this game can have.
+  - name ≤ 12 chars after trimming; score is an integer within a sane cap
+  - per-IP rate limit (a few submissions/minute is plenty)
+- SQL: `scores (id serial, name text, score int, created_at timestamptz)` and
+  `sessions (token uuid pk, created_at timestamptz, used boolean)`
+- Swap the two client functions to fetch; wire the session POST into
+  `startGameFromTitle`/`restartFromGameComplete`
+- `package.json`: add the Postgres client (`@neondatabase/serverless` or
+  `@vercel/postgres`), delete the vestigial `express` dep
+- Dashboard (manual): create the Neon database via the Vercel Marketplace,
+  confirm `DATABASE_URL` is set, deploy
+
+**Anti-cheat: decided scope.** Scores are computed client-side, so a public
+leaderboard is forgeable by anyone willing to read the JS — the ladder of
+defenses, in ascending effort, is: (1) validation caps + rate limits,
+(2) session tokens + duration/score bounds (chosen — see above), (3) in-flight
+per-shot event pings sanity-checked server-side (nice later upgrade if junk
+appears), (4) HMAC-signing the payload with a client-embedded secret (mostly
+theater; the secret ships in readable JS), (5) server-verified input replays.
+Replay verification is the only cryptographically honest option and is what
+leaderboard-centric games (Trackmania, osu!, lockstep RTSes) do — but it
+requires making the whole sim deterministic (fixed-timestep refactor of the
+wall-clock-driven game loop, tick-indexed inputs, deterministic trig shims
+because `Math.sin/cos` differ across JS engines and stacked-body physics is
+chaotic), extracting the sim from the DOM so Node can run it headless, and
+version-stamping replays — 5–10× the cost of the entire leaderboard, and it
+still only proves "these inputs produce this score", not "a human played"
+(TAS-style input search remains). Not worth it here; tier 2 + the ability to
+manually delete rows is the right call for a hobby game. "Leaderboard that
+can't be hacked" (in Next stuff above) should be read as "leaderboard that
+can't be hacked with one curl command".
 
 **Prompt to use:**
-> "Port Ham Huckin' to Next.js (App Router). The entire game currently lives in `lib/hamhuckin.js` as a single `gameStart()` function that uses Matter.js imperatively. Create a `components/Game.jsx` client component (`'use client'`) that runs `gameStart()` inside a `useEffect(() => { gameStart(); return () => { /* cleanup */ } }, [])`. The component renders a single `<div id='game-screen'>` with the existing HUD markup from `index.html`. Move all static assets to `/public`. Create `app/api/scores/route.js` with GET (SELECT top 10 from a `scores` table ordered by score DESC) and POST (INSERT name + score). Use `@vercel/postgres` for the DB client. On the game-over screen, add a name text input and a submit button; on submit, POST to `/api/scores`, then fetch GET and render the top 10 below the final score. Provide the SQL to create the scores table."
+> "The game is a static site on Vercel with a local leaderboard whose storage
+> layer is isolated behind `leaderboardLoad()` / `leaderboardSubmit(entry)`
+> (Promise-returning) in `lib/hamhuckin.js`. Add bare Vercel serverless
+> functions (no framework): `api/session.js` — POST inserts and returns a
+> one-time UUID token in a `sessions` table. `api/scores.js` — GET returns the
+> top 10 from `scores` ordered by score DESC; POST takes `{ token, name,
+> score }` and inserts only if the token exists, is unused (mark used), and is
+> 20 s–2 h old; the score must satisfy a duration bound (max plausible score
+> given elapsed seconds since token creation, knowing 7 base shots plus one
+> bonus shot per 2.5 s); name trimmed to ≤ 12 chars; score an integer 0–200;
+> plus a simple per-IP rate limit. Use `@neondatabase/serverless` reading
+> `DATABASE_URL`. Provide the CREATE TABLE SQL. In `lib/hamhuckin.js`, replace
+> the bodies of `leaderboardLoad`/`leaderboardSubmit` with fetches to
+> `/api/scores` (keeping the current localStorage logic as a fallback when
+> fetch fails), and request a session token at game start. Remove the unused
+> `express` dependency."
 
 ---
 
