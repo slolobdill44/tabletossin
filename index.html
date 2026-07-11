@@ -80,9 +80,25 @@
     <div id='ending-screen'>
       <div class='ending-screen-text'>
         <div class='game-over-text'>Game Complete!</div>
-        <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
-        <div class='ending-breakdown'></div>
-        <div class='high-score-text'>Session High Score: <div class='high-score-number'>0</div></div>
+        <div class='ending-columns'>
+          <div class='ending-main'>
+            <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
+            <div class='ending-breakdown'></div>
+            <div class='high-score-text'>Session High Score: <div class='high-score-number'>0</div></div>
+          </div>
+          <div class='leaderboard-panel'>
+            <div class='leaderboard-title'>Leaderboard</div>
+            <div class='leaderboard-entry-form'>
+              <div class='leaderboard-entry-prompt'>You made the top 10!</div>
+              <input id='leaderboard-name' type='text' maxlength='12' placeholder='Your name' autocomplete='off'>
+              <div class='leaderboard-entry-buttons'>
+                <button id='leaderboard-save' type='button'>Save</button>
+                <button id='leaderboard-skip' type='button'>Skip</button>
+              </div>
+            </div>
+            <ol class='leaderboard-list'></ol>
+          </div>
+        </div>
         <div class='game-over-text' id='restart-instructions'>Press any key to restart</div>
       </div>
     </div>

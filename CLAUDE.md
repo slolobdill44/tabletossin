@@ -88,6 +88,12 @@ Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `bonusPeakOnSc
 
 `runScores` (per run) and `bestScores` (all-time, persisted to `localStorage` under `tableTossinBestScores`, with in-memory fallback) are keyed by `throwableKey` and written via `recordLevelScore()` — called from `endLevel` and `startBonusEndSequence`. `showGameComplete()` renders them as one `.breakdown-card` per level on the ending screen.
 
+### Leaderboard (local, backend-swappable)
+
+Top-10 leaderboard on the game-complete screen (`.leaderboard-panel`, right column of `.ending-columns`). The storage layer is deliberately isolated behind two Promise-returning functions — `leaderboardLoad()` and `leaderboardSubmit(entry)` — that currently read/write `localStorage` (`tableTossinLeaderboard`); a hosted backend (e.g. a Vercel serverless `/api/scores`) replaces only their bodies with `fetch()` calls. Entries are `{ name, score, date }`, sorted desc, trimmed to `LEADERBOARD_SIZE`.
+
+If the finished run's `totalScore` beats the cut (`scoreQualifies`), a name-entry form appears in the panel. While `awaitingNameEntry` is true, every restart path is disabled: `restartFromGameComplete` early-returns, the document keydown handler ignores keys (and any event whose target is an `INPUT`), and the panel stops click/touchend propagation so taps inside it never reach the ending screen's restart handlers (touchend does **not** preventDefault — the browser must still synthesize clicks for input focus and the Save/Skip buttons). The last-used name is prefilled from `tableTossinPlayerName`; the input auto-focuses on desktop only.
+
 ### Controls & input routing
 
 - **Spacebar** (desktop) / **touch-hold** on `#canvas-wrapper` (mobile, `(pointer: coarse)`): sets `pullHeld`; release fires. The spacebar handler ignores input while `gameOver`/`pickingNew`/overlay-continue flags are set, so a key that dismisses an overlay doesn't also wind the whacker.

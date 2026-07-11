@@ -440,6 +440,150 @@ img  {
 
 .ending-screen-text > *:nth-child(5) { animation-delay: 0.32s; }
 
+/* Two-column body of the game-complete screen: run results on the left,
+   leaderboard panel on the right. */
+.ending-columns {
+  display: flex;
+  gap: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ending-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.ending-main .ending-score-text {
+  margin-top: 0;
+  font-size: 34px;
+}
+
+.ending-main .high-score-text {
+  font-size: 22px;
+}
+
+/* Leaderboard panel. Clicks inside must not restart the game — JS stops
+   propagation, this just makes the cursor honest. */
+.leaderboard-panel {
+  width: 320px;
+  box-sizing: border-box;
+  padding: 14px 18px 16px;
+  border: 3px solid #C8302C;
+  border-radius: 12px;
+  background: #f2e7d3;
+  cursor: default;
+  text-align: center;
+}
+
+.leaderboard-title {
+  font-size: 24px;
+  color: #C8302C;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-family: 'Dosis', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+  text-align: left;
+}
+
+.leaderboard-list li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 1px 6px;
+}
+
+.lb-rank {
+  width: 20px;
+  font-family: 'Bungee Inline', cursive;
+  font-size: 12px;
+  color: #C8302C;
+}
+
+.lb-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-score {
+  font-family: 'Bungee Inline', cursive;
+  font-size: 13px;
+}
+
+.leaderboard-you {
+  background: #ffe9a8;
+  border-radius: 6px;
+}
+
+.leaderboard-empty {
+  justify-content: center;
+  color: #7a6a52;
+}
+
+.leaderboard-entry-form {
+  display: none;  /* shown by JS when the score makes the cut */
+  margin-top: 10px;
+  font-family: 'Dosis', sans-serif;
+}
+
+.leaderboard-entry-prompt {
+  font-size: 18px;
+  font-weight: 700;
+  color: #C8302C;
+  margin-bottom: 8px;
+}
+
+#leaderboard-name {
+  width: 200px;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  font-family: 'Dosis', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  text-align: center;
+  color: #333;
+  background: #fffbef;
+  border: 2px solid #C8302C;
+  border-radius: 8px;
+  outline: none;
+}
+
+.leaderboard-entry-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.leaderboard-entry-buttons button {
+  font-family: 'Bungee Inline', cursive;
+  font-size: 15px;
+  padding: 6px 16px;
+  border: 2px solid #C8302C;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#leaderboard-save {
+  background: #C8302C;
+  color: #fffbef;
+}
+
+#leaderboard-skip {
+  background: transparent;
+  color: #C8302C;
+}
+
 /* Per-object score breakdown on the game-complete screen. */
 .ending-breakdown {
   display: flex;
