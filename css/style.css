@@ -8,6 +8,9 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  /* Normally invisible (the diner art covers the wrapper exactly); shows at
+     the edges when the bonus zoom-out shrinks the backdrop. */
+  background: #9db4b6;
 }
 
 /* Hide HUD chrome during the bonus-end freeze so the bonus-end text reads
@@ -101,6 +104,23 @@ img  {
   background: #A8C5C7 url('../assets/intro2.png') center / 1050px 602px no-repeat;
   z-index: 100;
   display: block;
+}
+
+/* Goal copy overlaid on the title artwork, on the clear floor area between
+   the sign legs below the START GAME button. */
+#title-goal-text {
+  position: absolute;
+  left: 245px;
+  top: 508px;
+  width: 560px;
+  text-align: center;
+  font-family: 'Dosis', sans-serif;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.3;
+  color: #C8302C;
+  text-shadow: 0 1px 0 rgba(255, 252, 240, 0.75);
+  pointer-events: none;
 }
 
 #start-game-btn {
@@ -417,6 +437,38 @@ img  {
 .ending-screen-text > *:nth-child(3) { animation-delay: 0.16s; }
 
 .ending-screen-text > *:nth-child(4) { animation-delay: 0.24s; }
+
+.ending-screen-text > *:nth-child(5) { animation-delay: 0.32s; }
+
+/* Per-object score breakdown on the game-complete screen. */
+.ending-breakdown {
+  display: flex;
+  gap: 26px;
+  justify-content: center;
+}
+
+.breakdown-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 20px;
+  min-width: 140px;
+  border: 3px solid #C8302C;
+  border-radius: 12px;
+  background: #f2e7d3;
+}
+
+.breakdown-img {
+  position: static;  /* the global img rule sets absolute — undo it */
+  margin: 0;
+  height: 42px;
+  width: auto;
+}
+
+.breakdown-object { font-size: 17px; color: #333; }
+.breakdown-run    { font-size: 34px; color: #C8302C; line-height: 1; }
+.breakdown-best   { font-size: 14px; color: #7a6a52; }
 
 .game-over-text {
   font-size: 72px;
