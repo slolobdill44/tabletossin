@@ -1,54 +1,32 @@
-# Ham Huckin'
+# Table Tossin'
 
 [Live App][live]
 
-[live]: https://slolobdill44.github.io/hamhuckin/
+[live]: https://hamhuckin.vercel.app/
 
-Ham Huckin' is a simple Javascript projectile game built using [Matter.js][matter].
+Table Tossin' (page title "Table Toss") is a browser-based physics game built with [Matter.js][matter]. Pick an object, wind up the spatula, and launch your projectile off the paddle — the goal is to land it on the table for points.
 
 [matter]: http://brm.io/matter-js/
 
-[hamhuck-gameplay]: ./assets/newhamhuckscreenshot.png
-
-![hamhuck-gameplay]
+_[Screenshot placeholder — add gameplay image here]_
 
 ### Technologies
 
-This game utilizes vanilla JS for game logic and Matter.js for rendering and physics logic.
+This game utilizes vanilla JS for all game logic and Matter.js for rendering and physics. There is no build system — the game runs by opening `index.html` directly in a browser.
 
 ## Playing
 
-The game is played by holding down the space bar, which will pull the whacker back using a hidden spring system:
+Choose a throwable — a burger, a fish, or a rubber duck — from the title screen. Each object has its own weight, friction, and bounciness, so they fly and settle differently.
+
+To launch, pull back the spatula-shaped whacker and release:
+
+- **Desktop:** hold the spacebar to wind the whacker back against a hidden spring, then release to fire.
+- **Mobile:** tap and hold anywhere on the play area to pull back, then let go to fire.
+
+The whacker is held, pulled back, and fired by a stack of Matter.js constraints — a fixed pivot at its left end, a soft return spring, a leveling constraint, a pullback constraint that builds tension while you hold input, and a freeze that locks it at rest between shots. Releasing removes the pullback constraint, and the stored spring tension whips the whacker forward to launch your object.
 
 ```
-var whacker = Bodies.rectangle(200, 380, 190, 40);
-
-
-// anchors left side of whacker to the screen
-
-var whackerAnchor = { x: 125, y: 385 };
-var whackerPivot = Constraint.create({
-  pointA: whackerAnchor,
-  bodyB: whacker,
-  pointB: { x: -75, y: 5 },
-  stiffness: 1
-});
-
-
-// when the spacebar is held down, the whackerPullbackAnchor is moved down and to the left, causing tension
-
-var whackerPullbackAnchor = { x: 220, y: 410 };
-var whackerPullback = Constraint.create({
-  pointA: whackerPullbackAnchor,
-  bodyB: whacker,
-  pointB: { x: 70, y: 5 },
-  stiffness: .2,
-  render: {
-    lineWidth: 0.01,
-    strokeStyle: '#dfa417'
-  }
-});
-
+// when input is held, the pullback anchor is dragged left and down, building tension
 document.onkeydown = function (keys) {
   if (keys.keyCode === 32 && whackerPullbackAnchor.x > 120) {
     whackerPullbackAnchor.x -= 8;
@@ -56,9 +34,7 @@ document.onkeydown = function (keys) {
   }
 };
 
-
-// Once the whackerPullbackAnchor is released, the tension in the whackerSpring launches the projectile
-
+// on release, the pullback constraint is removed and the spring fires the whacker
 document.onkeyup = function (keys) {
   if (keys.keyCode === 32) {
     World.remove(engine.world, whackerPullback);
@@ -66,25 +42,6 @@ document.onkeyup = function (keys) {
     whackerPullbackAnchor.y = pullbackPosition[1];
   }
 };
-
-var whackerSpringAnchor = { x: 325, y: 375 };
-var whackerSpring = Constraint.create({
-  pointA: whackerSpringAnchor,
-  bodyB: whacker,
-  pointB: { x: 75, y: 5 },
-  stiffness: .2,
-  render: {
-    lineWidth: 0.01,
-    strokeStyle: '#dfa417'
-  }
-
-});
 ```
 
- Upon releasing the space bar, the hidden spring is removed, causing the whacker to throw or hit the current target object. Points are given out for every object that remains on the platform after 5 objects have been spawned.
-
-## Planned Features
-
- * Randomly generated levels. This will be a challenge since the user should theoretically be able to complete every level.
-
- * A high score leaderboard. The user will receive a score for their streak of successful tosses and be able to display their score on the leaderboard.
+You get 5 shots per round. Your score is the number of objects that come to rest on the table (in the column above the landing pad) — pieces still in flight or that have fallen off don't count. Once all shots are used and everything has settled, the round ends and your score is tallied against your session high score.
