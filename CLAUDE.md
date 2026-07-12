@@ -79,6 +79,8 @@ Each toss is counted the moment its hammo leaves the launch area (`x > 400 || y 
 
 Score = bodies inside `scoreBounds` (the table column, extended to y = −1200 so over-canvas stacks count) filtered to `position.y <= 700 && speed < 2`. `areAllHammosDone()` deliberately uses the same `speed < 2` threshold so the two agree (stacked bodies micro-jitter; tighter thresholds never settle).
 
+**Score pops**: a slightly-transparent light green `+1` floats up when a piece first meets the scoring criteria for `SCORE_POP_SETTLE_TICKS` consecutive ticks (debounces landing bounces); a light red `-1` when a piece that scored drops below the tabletop (`_scored` + `position.y > 520` — position-based so wobbles don't flicker). Pops are canvas-drawn in world coordinates inside the view transform (they track the zoom) and aged by wall clock (they keep animating through the bonus-end freeze, alongside the red circle). Cleared in `startLevel`.
+
 ### Bonus mode
 
 Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `lockBonusBaseline()` tags `_countedInBonus` on pieces that are actually ON the table — inside the score column AND above the tabletop (`y < 500`). Floor debris from missed shots and the fresh hammo on the whacker stay untagged, so **misses never end the bonus** — only a previously-on-table piece falling off does (floor-resting pieces sit at y ≈ 545–565, inside the falling band, with jittering velocity; tagging them ended the bonus instantly). Bonus shots are awarded on a `BONUS_DELAY_MS` timer (HUD countdown) — shoot fast, forever, until a tagged piece crosses the 530–602 band with `velocity.y > 1` (not `> 0`; resting bodies jitter). That triggers `startBonusEndSequence`:

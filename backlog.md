@@ -16,7 +16,7 @@ Same content as `backlog.json`; keep the two in sync when statuses change.
 | 9 | ✅ Persist total high score across visits | polish | medium | small | — | "Your High Score" resets on reload while per-object bests persist. Store it in localStorage too. |
 | 10 | Label leaderboard as offline when local | polish | medium | small | — | API failure silently swaps in the private local list; players can't tell. Add a small "local scores" tag. |
 | 11 | Add a whacker power indicator | gameplay | medium | medium | — | Pull strength is nearly invisible; a meter makes the core mechanic learnable in one toss. |
-| 12 | Celebrate landings with score pops | gameplay | medium | medium | — | Floating +1 / squash when a piece settles in the score column; makes scoring legible and rewarding. |
+| 12 | ✅ Celebrate landings with score pops | gameplay | medium | medium | — | Floating +1 / squash when a piece settles in the score column; makes scoring legible and rewarding. |
 | 13 | Add restart and quit-to-title controls | gameplay | medium | medium | — | No way to bail a bad run without finishing all three levels. R key + small HUD button, overlay-guarded. |
 | 14 | Baseline accessibility pass on UI chrome | accessibility | medium | small | — | Restore focus outlines, label the name input, aria-live the score, honor prefers-reduced-motion — DOM only. |
 | 15 | ✅ Improve ending screen on small phones | polish | medium | medium | — | Two-column ending layout scales to ~0.35× on phones; stack columns / enlarge type under (pointer: coarse). |

@@ -104,10 +104,10 @@
     "title": "Celebrate landings with score pops",
     "category": "gameplay",
     "priority": "medium",
-    "description": "Scoring is only legible as a number quietly ticking in the HUD; a floating +1 (and a tiny squash/sparkle) when a piece settles in the score column makes every successful toss feel rewarded. Hook off the same settled-in-bounds test calcScore already uses.",
+    "description": "Done: floating slightly-transparent +1 (light green) when a piece settles in the score column, and -1 (light red) when a previously-scoring piece falls off — canvas-drawn in world coords, zoom-aware, gradient in/out, entry squash-pop.",
     "effort": "medium",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Add restart and quit-to-title controls",
