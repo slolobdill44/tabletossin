@@ -1,0 +1,200 @@
+[
+  {
+    "title": "Fix bonus ending instantly from floor debris",
+    "category": "bug",
+    "priority": "high",
+    "description": "At bonus entry, every on-screen hammo is tagged _countedInBonus — including missed shots resting on the floor, whose center y (~545-565) sits inside the 530-602 'falling' band and whose resting velocity jitters positive, so the bonus can end the moment it starts. Regression from the 5-of-7 threshold (misses can now exist at bonus entry); fix by only tagging/watching pieces inside the table column x-range and requiring a real downward velocity (e.g. > 1) instead of > 0.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Define missed bonus shot behavior explicitly",
+    "category": "gameplay",
+    "priority": "high",
+    "description": "A bonus toss that misses the table entirely currently ends the run only by accident (it's tagged while sitting on the whacker, then crosses the falling band). Decide the rule — miss ends the bonus (high stakes) or misses are forgiven and only knocked-off stack pieces end it — and implement it deliberately alongside the debris fix.",
+    "effort": "small",
+    "depends_on": ["Fix bonus ending instantly from floor debris"],
+    "status": "pending"
+  },
+  {
+    "title": "Shrink multi-megabyte artwork and delete unused",
+    "category": "performance",
+    "priority": "high",
+    "description": "First load pulls dinerandscore.png (5.5MB) and intro2.png (0.9MB), and the repo ships ~8MB of assets nothing references (scoreboard.png 5MB, diner1/2/5.png). Recompress the two used backdrops to WebP/optimized PNG (should land under ~300KB total) and delete the unused files — likely the single biggest improvement to time-to-first-toss on mobile.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Filter offensive leaderboard names server-side",
+    "category": "polish",
+    "priority": "high",
+    "description": "The global leaderboard accepts any 12-character name, so slurs will end up on the public top-10. Add a basic denylist/normalization check in api/scores.js POST (reject or replace with ANON) before the board goes live.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Prevent duplicate leaderboard submissions",
+    "category": "bug",
+    "priority": "medium",
+    "description": "Double-clicking Save or holding Enter runs submitLeaderboardName more than once: the server is protected by the one-time token, but localLeaderboardSubmit pushes duplicate rows into the local list. Clear awaitingNameEntry (or disable the button) synchronously on first submit and ignore key repeats in the input handler.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Add sound effects with mute toggle",
+    "category": "gameplay",
+    "priority": "high",
+    "description": "The game is completely silent; a spatula thwack, landing thud, stack wobble, bonus fanfare, and fall-off sting would add more game-feel than any other single change. Needs a small audio helper (unlocked on first input for autoplay policies) and a visible mute button.",
+    "effort": "medium",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Extend the floor beneath the table",
+    "category": "polish",
+    "priority": "medium",
+    "description": "The ground body spans x -5..805 only, so objects that fall off the table's right side sink through the visible diner floor and vanish — it reads as a glitch. Widen the ground to the full canvas so fallen pieces land visibly everywhere.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Show scores on level intro screens",
+    "category": "polish",
+    "priority": "medium",
+    "description": "showLevelIntro receives scoreLine and lastLevelScore but never renders them, and the .level-intro-last-score / .level-intro-score divs sit permanently empty — so there is zero score feedback between levels. Wire the existing params into the existing DOM.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Persist total high score across visits",
+    "category": "polish",
+    "priority": "medium",
+    "description": "The ending screen's 'Your High Score' (window.sessionHighScore) resets on every page reload while the per-object bests persist in localStorage — inconsistent and disappointing for returning players. Store the total high score in localStorage alongside tableTossinBestScores.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Label leaderboard as offline when local",
+    "category": "polish",
+    "priority": "medium",
+    "description": "When the scores API is unreachable the panel silently swaps to the localStorage list, so players can't tell a global top-10 from their private one. Show a small 'local scores — offline' tag whenever the fallback path is used.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Add a whacker power indicator",
+    "category": "gameplay",
+    "priority": "medium",
+    "description": "Pull strength is only visible as a subtle spatula tilt, so new players can't calibrate their first several tosses. Draw a small power meter (or color ramp on the spring) that fills while input is held.",
+    "effort": "medium",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Celebrate landings with score pops",
+    "category": "gameplay",
+    "priority": "medium",
+    "description": "Scoring is only legible as a number quietly ticking in the HUD; a floating +1 (and a tiny squash/sparkle) when a piece settles in the score column makes every successful toss feel rewarded. Hook off the same settled-in-bounds test calcScore already uses.",
+    "effort": "medium",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Add restart and quit-to-title controls",
+    "category": "gameplay",
+    "priority": "medium",
+    "description": "There is no way to bail out of a bad run — fumble level 1 and you must finish all three levels to try again. Add an R shortcut plus a small HUD button (for touch) to restart the run or return to the title, guarded against firing while overlays are up.",
+    "effort": "medium",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Baseline accessibility pass on UI chrome",
+    "category": "accessibility",
+    "priority": "medium",
+    "description": "The start button and name input remove focus outlines (outline: none), the name input has no label, score updates are silent to screen readers, and every animation ignores prefers-reduced-motion. Add :focus-visible styles, an aria-label, aria-live='polite' on the score/summary text, and reduced-motion guards — all DOM chrome, no canvas work.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Improve ending screen on small phones",
+    "category": "polish",
+    "priority": "medium",
+    "description": "The two-column game-complete layout (cards + 10-row leaderboard) is designed at 1050px and scales down to ~0.35x on phones, leaving the leaderboard text tiny. Stack the columns and enlarge type under the (pointer: coarse) media query.",
+    "effort": "medium",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Show leaderboard from the title screen",
+    "category": "polish",
+    "priority": "low",
+    "description": "The top-10 is only visible after finishing all three levels, which hides the game's main long-term hook. Add a small button on the title screen that opens the existing leaderboard panel using the existing GET endpoint.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Display best score per player name",
+    "category": "gameplay",
+    "priority": "low",
+    "description": "One frequent player can occupy all ten global slots, making the board feel unwinnable for everyone else. Change the top-10 query to best-per-name (GROUP BY lower(name), MAX(score)) or cap entries per name.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Preload game art during title screen",
+    "category": "performance",
+    "priority": "low",
+    "description": "Sprites and the diner backdrop load lazily, so the first toss (or first level transition) can show pop-in on slow connections. Kick off Image() preloads for all gameplay assets while the player sits on the title screen.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Auto-prune expired session rows",
+    "category": "code-quality",
+    "priority": "low",
+    "description": "The sessions table grows forever — every game start inserts a row that is never deleted. Opportunistically DELETE used/expired rows (older than a day) inside the session POST so the table stays tiny without needing a cron.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Document server-mirrored gameplay constants",
+    "category": "code-quality",
+    "priority": "low",
+    "description": "api/scores.js hand-mirrors gameplay values (7 shots x 3 levels, bonus timer) and one has already drifted from the client (2.0s vs BONUS_DELAY_MS 2500 — currently intentional slack, but nothing says so). Add explicit cross-reference comments in both files (or a shared constants JSON) stating which side is the source of truth and why any slack exists.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Remove dead code and accidental global",
+    "category": "code-quality",
+    "priority": "low",
+    "description": "isHammoDone is never called, shotsTaken is written but never read (its explanatory comment is stale too), allDone is an undeclared implicit global assigned once, .stack-height is an empty unused div, and several large commented-out blocks (basket, horseshoe, elastic) linger. Deleting them removes real confusion about which settle-detection path is live.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "title": "Rewrite outdated README",
+    "category": "code-quality",
+    "priority": "low",
+    "description": "README.md still describes the removed throwable picker, 5 shots per round, and the old five-constraint whacker stack, and its screenshot is a placeholder — misleading for anyone landing on the repo. Rewrite to match the level progression, bonus mode, and leaderboard, with a current screenshot.",
+    "effort": "small",
+    "depends_on": [],
+    "status": "pending"
+  }
+]
