@@ -410,7 +410,6 @@ img  {
   display: none;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .ending-screen-text {
@@ -675,10 +674,36 @@ img  {
   color: #C8302C;
 }
 
-#restart-instructions {
-  font-size: 28px;
-  color: #333;
-  margin-top: 24px;
+/* Play Again / Main Menu on the game-complete screen (replaces the old
+   click-anywhere / any-key restart). */
+.ending-buttons {
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+#play-again-btn {
+  font-family: 'Bungee Inline', cursive;
+  font-size: 30px;
+  color: #fffbef;
+  background: #C8302C;
+  border: 4px solid #7e1f1c;
+  border-radius: 14px;
+  padding: 14px 40px;
+  cursor: pointer;
+}
+
+#main-menu-btn {
+  font-family: 'Bungee Inline', cursive;
+  font-size: 20px;
+  color: #C8302C;
+  background: transparent;
+  border: 3px solid #C8302C;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
 }
 
 .high-score-number {
@@ -718,7 +743,9 @@ img  {
 @media (pointer: coarse), (max-width: 700px) {
   .ending-screen-text { gap: 14px; }
   .ending-screen-text > .game-over-text { font-size: 46px; }
-  #restart-instructions { font-size: 26px; margin-top: 8px; }
+  .ending-buttons { gap: 16px; margin-top: 4px; }
+  #play-again-btn { font-size: 26px; padding: 12px 30px; }
+  #main-menu-btn { font-size: 18px; padding: 10px 20px; }
   .ending-columns { gap: 26px; }
   .ending-main { gap: 14px; }
   .ending-main .ending-score-text { font-size: 30px; }
