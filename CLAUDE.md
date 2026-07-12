@@ -32,7 +32,7 @@ All game logic lives in `lib/hamhuckin.js`, wrapped in `gameStart()` (called by 
 
 **Canvas**: Fixed render size 1050×600 (CSS chrome assumes 602). The canvas background is transparent; the diner artwork (`.canvas-bg-diner`) and a flat freeze color (`.canvas-bg-flat`) are sibling DOM elements behind it, toggled via the `.frozen` class on `#canvas-wrapper`. `applyMobileScale()` scales `#canvas-wrapper` via CSS transform to fit the viewport (re-runs on resize / orientationchange).
 
-**Engine speed**: a `Runner` `afterUpdate` hook steps the engine one extra time per frame using `runner.delta` for a true ~2x feel on all platforms (fixed 16.67ms would run iOS slow). The hook early-returns while `fallingHammo` is set.
+**Engine speed**: `GAME_SPEED` (top of the file, next to `CHEAT_MODE`) is the master speed multiplier — 1 = real time, 2 = the classic shipped feel, fractional values fine, minimum 1. A `Runner` `afterUpdate` hook steps the engine the extra `runner.delta × (GAME_SPEED − 1)` per frame, chunked into steps no larger than `runner.delta` (keeps integration accuracy speed-independent, and refresh-rate independent — fixed 16.67ms steps would run iOS slow). Whacker-pull pacing scales with it (the game loop runs per engine step); wall-clock timers (bonus timer, settle waits, transitions) do not. The hook early-returns while `fallingHammo` is set.
 
 ### Game flow (levels)
 
@@ -56,8 +56,9 @@ Cumulative `totalScore` is shown in the HUD and carried across levels. `window.s
 
 - `whacker` — spatula-sprited paddle, pivoted at its left end
 - `hammo` — the currently active projectile; `hammos[]` tracks every spawned shot for scoring/settling checks
-- `landingPad` — compound static body (`tableTop` + `leftLeg` + `rightLeg`) via `Matter.Body.create({ parts: [...] })`; geometry derives from `TABLE_CENTER_X` / `TABLETOP_WIDTH`
+- `landingPad` — compound static body (`tableTop` + `leftLeg` + `rightLeg`) via `Matter.Body.create({ parts: [...] })`; geometry derives from `TABLE_CENTER_X` / `TABLETOP_WIDTH`. Its parts have `friction: 1` on purpose — Matter resolves contact friction as min(A, B), so the object's own friction always governs landings.
 - `throwables` — registry of objects (`burger`, `fish`, `rubberDuck`) with physics params, sprite, concave `vertices`, and per-throwable whacker tuning (`restAnchorY`, applied by `applyThrowableTuning`). Commented-out `ham` / `bowlingBall` entries are intentional dormant configs.
+- **Two-phase friction**: each throwable has `friction` (launch feel — object vs. whacker) and `stackFriction` (grip on the table and on other pieces). `applyStackFriction` swaps a shot to `stackFriction` (all parts, plus a `frictionStatic` bump) the moment it leaves the launch area — nothing can reach the table without crossing that line, so the two are independently tunable.
 
 ### Whacker (single damped spring — NOT a constraint stack)
 
