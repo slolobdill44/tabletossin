@@ -21,6 +21,22 @@ const BONUS_SECONDS_PER_POINT = 2.0;   // BONUS_DELAY_MS in lib/hamhuckin.js
 const SUBMITS_PER_IP_PER_MINUTE = 4;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// Arcade-style initials: letters/digits only, uppercased, exactly 1-3 chars.
+// Offensive combos are replaced (not rejected) so a submission never fails
+// over its name. Mirror any normalization change in submitLeaderboardName
+// in lib/hamhuckin.js.
+const NAME_DENYLIST = [
+  'ASS', 'FUK', 'FUC', 'FCK', 'FUX', 'FAG', 'FGT', 'NIG', 'NGR', 'NGA',
+  'KKK', 'CUM', 'JIZ', 'TIT', 'DIK', 'DIC', 'DCK', 'COK', 'CNT', 'TWT',
+  'VAG', 'PIS', 'SHT', 'WTF', 'RAP', 'HOR', 'WHR', 'SLT'
+];
+function cleanName(raw) {
+  const name = (typeof raw === 'string' ? raw : '')
+    .replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 3);
+  if (!name || NAME_DENYLIST.indexOf(name) !== -1) return 'AAA';
+  return name;
+}
+
 function topScores(sql) {
   return sql`
     SELECT id, name, score FROM scores
@@ -42,8 +58,7 @@ module.exports = async function handler(req, res) {
 
     const body = req.body || {};
     const token = typeof body.token === 'string' ? body.token : '';
-    const name = (typeof body.name === 'string' ? body.name : '')
-      .replace(/\s+/g, ' ').trim().slice(0, 12) || 'ANON';
+    const name = cleanName(body.name);
     const score = body.score;
 
     if (!Number.isInteger(score) || score < 0 || score > MAX_SCORE) {

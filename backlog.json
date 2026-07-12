@@ -6,7 +6,7 @@
     "description": "At bonus entry, every on-screen hammo is tagged _countedInBonus — including missed shots resting on the floor, whose center y (~545-565) sits inside the 530-602 'falling' band and whose resting velocity jitters positive, so the bonus can end the moment it starts. Regression from the 5-of-7 threshold (misses can now exist at bonus entry); fix by only tagging/watching pieces inside the table column x-range and requiring a real downward velocity (e.g. > 1) instead of > 0.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Define missed bonus shot behavior explicitly",
@@ -14,7 +14,9 @@
     "priority": "high",
     "description": "A bonus toss that misses the table entirely currently ends the run only by accident (it's tagged while sitting on the whacker, then crosses the falling band). Decide the rule — miss ends the bonus (high stakes) or misses are forgiven and only knocked-off stack pieces end it — and implement it deliberately alongside the debris fix.",
     "effort": "small",
-    "depends_on": ["Fix bonus ending instantly from floor debris"],
+    "depends_on": [
+      "Fix bonus ending instantly from floor debris"
+    ],
     "status": "pending"
   },
   {
@@ -30,10 +32,10 @@
     "title": "Filter offensive leaderboard names server-side",
     "category": "polish",
     "priority": "high",
-    "description": "The global leaderboard accepts any 12-character name, so slurs will end up on the public top-10. Add a basic denylist/normalization check in api/scores.js POST (reject or replace with ANON) before the board goes live.",
+    "description": "Names are now arcade-style 3-character initials (letters/digits, uppercased), normalized client-side and server-side, with a server denylist that replaces offensive combos with AAA.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Prevent duplicate leaderboard submissions",
@@ -42,7 +44,7 @@
     "description": "Double-clicking Save or holding Enter runs submitLeaderboardName more than once: the server is protected by the one-time token, but localLeaderboardSubmit pushes duplicate rows into the local list. Clear awaitingNameEntry (or disable the button) synchronously on first submit and ignore key repeats in the input handler.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Add sound effects with mute toggle",
@@ -69,7 +71,7 @@
     "description": "showLevelIntro receives scoreLine and lastLevelScore but never renders them, and the .level-intro-last-score / .level-intro-score divs sit permanently empty — so there is zero score feedback between levels. Wire the existing params into the existing DOM.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Persist total high score across visits",
@@ -78,7 +80,7 @@
     "description": "The ending screen's 'Your High Score' (window.sessionHighScore) resets on every page reload while the per-object bests persist in localStorage — inconsistent and disappointing for returning players. Store the total high score in localStorage alongside tableTossinBestScores.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Label leaderboard as offline when local",
@@ -132,7 +134,7 @@
     "description": "The two-column game-complete layout (cards + 10-row leaderboard) is designed at 1050px and scales down to ~0.35x on phones, leaving the leaderboard text tiny. Stack the columns and enlarge type under the (pointer: coarse) media query.",
     "effort": "medium",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Show leaderboard from the title screen",
@@ -141,7 +143,7 @@
     "description": "The top-10 is only visible after finishing all three levels, which hides the game's main long-term hook. Add a small button on the title screen that opens the existing leaderboard panel using the existing GET endpoint.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Display best score per player name",
@@ -159,7 +161,7 @@
     "description": "Sprites and the diner backdrop load lazily, so the first toss (or first level transition) can show pop-in on slow connections. Kick off Image() preloads for all gameplay assets while the player sits on the title screen.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Auto-prune expired session rows",
@@ -186,7 +188,7 @@
     "description": "isHammoDone is never called, shotsTaken is written but never read (its explanatory comment is stale too), allDone is an undeclared implicit global assigned once, .stack-height is an empty unused div, and several large commented-out blocks (basket, horseshoe, elastic) linger. Deleting them removes real confusion about which settle-detection path is live.",
     "effort": "small",
     "depends_on": [],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Rewrite outdated README",

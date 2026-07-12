@@ -544,12 +544,14 @@ img  {
 }
 
 #leaderboard-name {
-  width: 200px;
+  width: 110px;
   box-sizing: border-box;
   padding: 6px 10px;
   font-family: 'Dosis', sans-serif;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 22px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
   text-align: center;
   color: #333;
   background: #fffbef;
@@ -582,6 +584,49 @@ img  {
 #leaderboard-skip {
   background: transparent;
   color: #C8302C;
+}
+
+/* Title-screen leaderboard: a button in the corner of the artwork opens a
+   dimmed overlay reusing the leaderboard-panel styles. */
+#title-leaderboard-btn {
+  position: absolute;
+  right: 28px;
+  bottom: 22px;
+  font-family: 'Bungee Inline', cursive;
+  font-size: 17px;
+  color: #fffbef;
+  background: #C8302C;
+  border: 3px solid #7e1f1c;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+#title-leaderboard {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1050px;
+  height: 602px;
+  background: rgba(30, 20, 15, 0.55);
+  z-index: 120;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#title-leaderboard.active { display: flex; }
+
+.leaderboard-close {
+  margin-top: 12px;
+  font-family: 'Bungee Inline', cursive;
+  font-size: 16px;
+  color: #C8302C;
+  background: transparent;
+  border: 2px solid #C8302C;
+  border-radius: 8px;
+  padding: 5px 18px;
+  cursor: pointer;
 }
 
 /* Per-object score breakdown on the game-complete screen. */
@@ -664,4 +709,32 @@ img  {
     box-sizing: border-box;
     z-index: 200;
   }
+}
+
+/* Ending-screen readability at phone scale: the fixed 1050px layout gets
+   CSS-scaled to ~0.35x on portrait phones, so text set for desktop becomes
+   unreadably small. Bump relative sizes and tighten gaps on touch devices
+   and small windows (both mean a heavily scaled-down canvas). */
+@media (pointer: coarse), (max-width: 700px) {
+  .ending-screen-text { gap: 14px; }
+  .ending-screen-text > .game-over-text { font-size: 46px; }
+  #restart-instructions { font-size: 26px; margin-top: 8px; }
+  .ending-columns { gap: 26px; }
+  .ending-main { gap: 14px; }
+  .ending-main .ending-score-text { font-size: 30px; }
+  .ending-main .high-score-text { font-size: 20px; }
+  .breakdown-card { min-width: 118px; padding: 8px 12px; gap: 3px; }
+  .breakdown-img { height: 34px; }
+  .breakdown-object { font-size: 14px; }
+  .breakdown-run { font-size: 26px; }
+  .breakdown-best { font-size: 12px; }
+  .leaderboard-panel { width: 380px; padding: 12px 16px 14px; }
+  .leaderboard-title { font-size: 26px; }
+  .leaderboard-list { font-size: 21px; }
+  .leaderboard-list li { gap: 12px; padding: 2px 6px; }
+  .lb-rank { font-size: 15px; width: 26px; }
+  .lb-score { font-size: 17px; }
+  .leaderboard-entry-prompt { font-size: 20px; }
+  #leaderboard-name { font-size: 26px; width: 120px; }
+  .leaderboard-entry-buttons button { font-size: 17px; padding: 7px 18px; }
 }

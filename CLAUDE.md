@@ -43,7 +43,7 @@ Linear progression through `levels[]` — Level 1 Hamburger → Level 2 Fish →
 3. Play the level: `SHOTS_PER_LEVEL` (**7**) tosses.
 4. Round end resolution (see below) → next level intro, or game-complete screen after the last level.
 
-Cumulative `totalScore` is shown in the HUD and carried across levels. `window.sessionHighScore` tracks the best total this browser session.
+Cumulative `totalScore` is shown in the HUD and carried across levels. `window.sessionHighScore` tracks the best total ever, persisted to `localStorage` (`tableTossinHighScore`) via `updateHighScore()`. Level intros show the previous level's score and the running total (`showLevelIntro`'s `scoreLine`/`lastLevelScore` args).
 
 ### Key constants (top of `gameStart`)
 
@@ -66,7 +66,7 @@ Two constraints only: `whackerPivot` (fixed left-end pivot) and `whackerReturn` 
 
 ### Custom sprite rendering (concave bodies)
 
-For throwables with concave `vertices`, `spawnHammo()` uses `Bodies.fromVertices`, which splits the body into parts. Matter would draw the sprite once per part, so per-part rendering is suppressed and the parent is tagged with `customSprite`; an `Events.on(render, 'afterRender')` listener draws each tagged hammo once at the parent centroid using `spriteCache`. **Sprite art must assume the body's natural width/height** — no scaling at draw time. Both custom-draw listeners (sprites, red circle) wrap their drawing in the local `startViewTransform`/`endViewTransform` helpers so they track the bonus zoom (Matter 0.11.1 resets the canvas transform before firing `afterRender`).
+For throwables with concave `vertices`, `spawnHammo()` uses `Bodies.fromVertices`, which splits the body into parts. Matter would draw the sprite once per part, so per-part rendering is suppressed and the parent is tagged with `customSprite`; an `Events.on(render, 'afterRender')` listener draws each tagged hammo once at the parent centroid using `spriteCache`. All gameplay art is preloaded through the same cache at boot (`preloadArt`) so nothing pops in on the first toss. **Sprite art must assume the body's natural width/height** — no scaling at draw time. Both custom-draw listeners (sprites, red circle) wrap their drawing in the local `startViewTransform`/`endViewTransform` helpers so they track the bonus zoom (Matter 0.11.1 resets the canvas transform before firing `afterRender`).
 
 ### Round-end resolution (in the `afterUpdate` game loop)
 
@@ -81,7 +81,7 @@ Score = bodies inside `scoreBounds` (the table column, extended to y = −1200 s
 
 ### Bonus mode
 
-Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `bonusPeakOnScreen` records how many on-screen objects there are, and each is tagged `_countedInBonus`. Bonus shots are awarded on a `BONUS_DELAY_MS` timer (HUD countdown) — shoot fast, forever, until any tagged object crosses below the table top (`y` in 530–602 while moving down). That triggers `startBonusEndSequence`:
+Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `lockBonusBaseline()` tags `_countedInBonus` on pieces that are actually ON the table — inside the score column AND above the tabletop (`y < 500`). Floor debris from missed shots and the fresh hammo on the whacker stay untagged, so **misses never end the bonus** — only a previously-on-table piece falling off does (floor-resting pieces sit at y ≈ 545–565, inside the falling band, with jittering velocity; tagging them ended the bonus instantly). Bonus shots are awarded on a `BONUS_DELAY_MS` timer (HUD countdown) — shoot fast, forever, until a tagged piece crosses the 530–602 band with `velocity.y > 1` (not `> 0`; resting bodies jitter). That triggers `startBonusEndSequence`:
 
 1. `Runner.stop`, `.frozen` class (flat backdrop), red circle drawn around the falling object, HUD hidden.
 2. After 500ms the `#bonus-end-screen` overlay appears ("An object fell off!"), waiting for click/tap/any key.
@@ -95,7 +95,7 @@ Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `bonusPeakOnSc
 
 ### Leaderboard (server-backed, localStorage fallback)
 
-Top-10 leaderboard on the game-complete screen (`.leaderboard-panel`, right column of `.ending-columns`). The UI only ever talks to two Promise-returning functions — `leaderboardLoad()` and `leaderboardSubmit(entry)`:
+Top-10 leaderboard on the game-complete screen (`.leaderboard-panel`, right column of `.ending-columns`), also viewable from the title screen (`#title-leaderboard-btn` opens an overlay reusing the same `renderLeaderboard` with its own list element). Names are arcade-style initials: letters/digits, uppercased, max 3 — normalized on submit client-side and again in `api/scores.js`, which additionally replaces denylisted combos with `AAA` (keep the two normalizations in sync). `submitLeaderboardName` closes the form synchronously before the async submit so double-clicks/held Enter can't create duplicate local rows. The UI only ever talks to two Promise-returning functions — `leaderboardLoad()` and `leaderboardSubmit(entry)`:
 
 - **Online**: `leaderboardLoad` GETs `/api/scores`; `leaderboardSubmit` POSTs `{ token, name, score }` and swaps the caller's entry object into the returned rows (matched by the `you` id) so the UI's reference-equality highlight works unchanged.
 - **Fallback** (fetch missing/failed — offline, `file://` dev, backend down): the original localStorage list (`tableTossinLeaderboard`), which is also always written on submit so the fallback view stays current.
