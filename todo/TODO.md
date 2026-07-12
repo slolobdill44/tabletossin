@@ -1,15 +1,3 @@
-# Ham Huckin' — To-Do
-
-
-## Next stuff
-
-- Intro screen should say 5 in a row gets you bonus shots
-- Bonus game over screen tells you an object fell off
-- Do levels of 1, 2, 3. one for each object
-- Make bonus mode zoom out if stack gets big enough
-- Leaderboard that can't be hacked
-
-
 ## 1. Hosted Leaderboard (Vercel serverless functions — no Next.js port)
 
 Make the leaderboard global by backing it with a database behind two Vercel
@@ -83,9 +71,9 @@ chaotic), extracting the sim from the DOM so Node can run it headless, and
 version-stamping replays — 5–10× the cost of the entire leaderboard, and it
 still only proves "these inputs produce this score", not "a human played"
 (TAS-style input search remains). Not worth it here; tier 2 + the ability to
-manually delete rows is the right call for a hobby game. "Leaderboard that
-can't be hacked" (in Next stuff above) should be read as "leaderboard that
-can't be hacked with one curl command".
+manually delete rows is the right call for a hobby game. The old "leaderboard
+that can't be hacked" goal should be read as "leaderboard that can't be hacked
+with one curl command".
 
 **Prompt to use:**
 > "The game is a static site on Vercel with a local leaderboard whose storage
@@ -109,15 +97,32 @@ can't be hacked with one curl command".
 
 ## 2. Vercel Edge Config for Game Tuning
 
-Store game balance parameters in Vercel Edge Config so they can be changed without redeploying.
+Store game balance parameters in Vercel Edge Config so they can be changed
+without redeploying. Same no-framework rule as item 1: the game stays a static
+site, and the config is exposed through a bare serverless function.
 
 **What needs to happen:**
-- Move tuneable values out of `hamhuckin.js` into Vercel Edge Config: `shotCount`, gravity (`engine.gravity.y`), `whackerSpring.stiffness`, landing pad position/size
-- Fetch these at page load time from a Next.js server component or `getServerSideProps` and pass them as props into the game component
-- Fall back to hardcoded defaults if Edge Config is unavailable
+- Add `api/config.js` — GET reads the tunables from Edge Config via
+  `@vercel/edge-config` and returns them as JSON (Edge Config can't be read
+  from the browser directly)
+- Tuneable values, with the current hardcoded values as defaults:
+  `SHOTS_PER_LEVEL` (7), `BONUS_THRESHOLD` (5), `BONUS_DELAY_MS` (2500),
+  gravity (`engine.gravity.y`), whacker spring stiffness
+  (`whackerReturn.stiffness`, 0.15), `TABLE_CENTER_X` (750),
+  `TABLETOP_WIDTH` (532)
+- In `gameStart()`, fetch `/api/config` at load with a short timeout and merge
+  over the hardcoded defaults; if the fetch fails (offline, `file://` dev),
+  the defaults are already correct
 
 **Prompt to use:**
-> "In the Ham Huckin' Next.js app, fetch game config from Vercel Edge Config using `@vercel/edge-config`. The values to read are: `shotCount` (default 5), `gravityY` (default 1), `springStiffness` (default 0.2), `landingPadX` (default 750), `landingPadWidth` (default 315). Fetch these in the root `app/page.js` server component using `get()` from `@vercel/edge-config`, fall back to defaults if any are missing, and pass them as props to the `<Game>` client component. In `Game.jsx`, accept these as props and pass them into `gameStart(config)`. Refactor `gameStart` to accept a config parameter object instead of using hardcoded values."
+> "The game is a static site on Vercel with bare serverless functions in
+> `api/`. Add `api/config.js`: GET returns JSON game tunables read from Vercel
+> Edge Config using `@vercel/edge-config`, falling back to defaults for any
+> missing key: SHOTS_PER_LEVEL 7, BONUS_THRESHOLD 5, BONUS_DELAY_MS 2500,
+> gravityY 1, springStiffness 0.15, tableCenterX 750, tabletopWidth 532. In
+> `lib/hamhuckin.js`, fetch `/api/config` at the top of `gameStart()` (with a
+> catch that keeps the hardcoded defaults) and use the merged values where
+> those constants are defined today."
 
 ---
 
@@ -126,9 +131,13 @@ Store game balance parameters in Vercel Edge Config so they can be changed witho
 Let users type a prompt, generate a pixel art sprite via an image generation API, and throw it.
 
 **What needs to happen:**
-- Add a "Generate your own" option to the throwable picker screen (from item 2)
+- Add a "Generate your own" option to the title screen (the old throwable
+  picker is gone — the game is a fixed level progression now). See
+  `todo/ai_plan.md` for the fuller plan, including deriving collision
+  vertices from the generated image's alpha channel
 - Clicking it shows a text input and a generate button
-- The request goes through a Next.js API route `/api/generate` — never call the image API from the browser
+- The request goes through a bare Vercel serverless function
+  `api/generate.js` — never call the image API from the browser
 - The API route rate-limits by IP using Vercel KV: max 3 generations per IP per 24 hours; return 429 with a friendly message if exceeded
 - Run the user prompt through OpenAI's moderation endpoint before passing to the image generator
 - Call DALL-E 3 (or Replicate) with a prefix like `"simple pixel art, single object, white background, 64x64, no text:"` + user prompt
@@ -137,4 +146,4 @@ Let users type a prompt, generate a pixel art sprite via an image generation API
 - Store the generated image in Vercel Blob so the URL is stable and doesn't expire
 
 **Prompt to use:**
-> "Add AI-generated throwables to the Ham Huckin' Next.js app. Create `app/api/generate/route.js` (POST). It should: 1) extract the real IP from `x-forwarded-for`; 2) check `@vercel/kv` for key `gen:{ip}` — if value >= 3, return 429 JSON `{ error: 'Daily generation limit reached' }`; 3) call OpenAI moderation API on the user prompt and return 400 if flagged; 4) call DALL-E 3 with prompt `'simple pixel art, single object, white background, 64x64, no text: ' + userPrompt`, size `256x256`; 5) download the image buffer and upload to Vercel Blob with `@vercel/blob`; 6) increment the KV counter with a 86400 second TTL; 7) return the stable Vercel Blob URL. In the frontend picker screen, add a text input + generate button, show a spinner during generation, show the resulting image as a preview with Confirm/Regenerate buttons. On confirm, create a throwable config with the blob URL as sprite and default physics `{ density: 0.001, friction: 0.2, restitution: 0.3, width: 60, height: 60 }`. Handle 429 by showing the limit message to the user."
+> "Add AI-generated throwables to the static-site game (bare Vercel serverless functions, no framework). Create `api/generate.js` (POST). It should: 1) extract the real IP from `x-forwarded-for`; 2) check `@vercel/kv` for key `gen:{ip}` — if value >= 3, return 429 JSON `{ error: 'Daily generation limit reached' }`; 3) call OpenAI moderation API on the user prompt and return 400 if flagged; 4) call DALL-E 3 with prompt `'simple pixel art, single object, white background, 64x64, no text: ' + userPrompt`, size `256x256`; 5) download the image buffer and upload to Vercel Blob with `@vercel/blob`; 6) increment the KV counter with a 86400 second TTL; 7) return the stable Vercel Blob URL. On the title screen, add a text input + generate button, show a spinner during generation, show the resulting image as a preview with Confirm/Regenerate buttons. On confirm, create a throwable config with the blob URL as sprite and default physics `{ density: 0.001, friction: 0.2, restitution: 0.3, width: 60, height: 60 }`. Handle 429 by showing the limit message to the user."

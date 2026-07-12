@@ -1,9 +1,9 @@
 {
     "name": "hamhuckin",
     "version": "0.0.0",
-    "description": "Multiple Buildpacks App",
+    "description": "Table Tossin' — static game plus Vercel serverless leaderboard API",
     "author": { "name": "AdrianLobdill" },
     "dependencies": {
-        "express": "~4.9.0"
+        "@neondatabase/serverless": "^1.1.0"
     }
 }

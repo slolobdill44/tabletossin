@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Table Tossin' is a browser-based physics game: the player winds up a spatula ("whacker") and launches food off it, trying to land tosses on a diner table for points. The repo directory and main JS file are still named `hamhuckin` for historical reasons — the project was renamed but the filenames were not.
 
-There is no build system — the game runs by opening `index.html` directly in a browser. The `express` dep in `package.json` and `pnpm-lock.yaml` are vestigial from an older Heroku/Vercel deploy and are not used by the game.
+There is no build system — the game runs by opening `index.html` directly in a browser. The only npm dependency (`@neondatabase/serverless` in `package.json`) is for the Vercel serverless functions in `api/`, not the game itself.
 
 ## Running the Game
 
@@ -16,7 +16,11 @@ Open `index.html` in a browser. For local development with a server:
 npx serve .
 # or
 python3 -m http.server
+# or, to also run the api/ leaderboard functions locally:
+vercel dev
 ```
+
+Without the API running, the leaderboard silently falls back to localStorage — everything else is unaffected.
 
 `CHEAT_MODE` at the top of `lib/hamhuckin.js` widens the table (and turns on wireframes) so the bonus/game-over flows can be exercised quickly. Keep it `false` in commits.
 
@@ -88,9 +92,14 @@ Entered when `BONUS_THRESHOLD`+ objects are scoring at round end. `bonusPeakOnSc
 
 `runScores` (per run) and `bestScores` (all-time, persisted to `localStorage` under `tableTossinBestScores`, with in-memory fallback) are keyed by `throwableKey` and written via `recordLevelScore()` — called from `endLevel` and `startBonusEndSequence`. `showGameComplete()` renders them as one `.breakdown-card` per level on the ending screen.
 
-### Leaderboard (local, backend-swappable)
+### Leaderboard (server-backed, localStorage fallback)
 
-Top-10 leaderboard on the game-complete screen (`.leaderboard-panel`, right column of `.ending-columns`). The storage layer is deliberately isolated behind two Promise-returning functions — `leaderboardLoad()` and `leaderboardSubmit(entry)` — that currently read/write `localStorage` (`tableTossinLeaderboard`); a hosted backend (e.g. a Vercel serverless `/api/scores`) replaces only their bodies with `fetch()` calls. Entries are `{ name, score, date }`, sorted desc, trimmed to `LEADERBOARD_SIZE`.
+Top-10 leaderboard on the game-complete screen (`.leaderboard-panel`, right column of `.ending-columns`). The UI only ever talks to two Promise-returning functions — `leaderboardLoad()` and `leaderboardSubmit(entry)`:
+
+- **Online**: `leaderboardLoad` GETs `/api/scores`; `leaderboardSubmit` POSTs `{ token, name, score }` and swaps the caller's entry object into the returned rows (matched by the `you` id) so the UI's reference-equality highlight works unchanged.
+- **Fallback** (fetch missing/failed — offline, `file://` dev, backend down): the original localStorage list (`tableTossinLeaderboard`), which is also always written on submit so the fallback view stays current.
+
+**Anti-cheat (session tokens + duration bound)**: `requestSessionToken()` POSTs `/api/session` at each game start (`startGameFromTitle` / `restartFromGameComplete`) and stores a one-time token. `api/scores.js` consumes the token atomically (one submission per game played, ≤ 2 h old) and rejects scores that are impossible for the elapsed time: minimum 40 s per run, max score = 21 base points + one point per 2.5 s (the bonus-shot timer). Also per-IP rate limits and shape validation on both endpoints. If gameplay constants change (`SHOTS_PER_LEVEL`, `BONUS_DELAY_MS`, level count), **the mirrored constants at the top of `api/scores.js` must change too.** Schema lives in `db/schema.sql`; the functions read `DATABASE_URL` (injected by the Neon integration on Vercel).
 
 If the finished run's `totalScore` beats the cut (`scoreQualifies`), a name-entry form appears in the panel. While `awaitingNameEntry` is true, every restart path is disabled: `restartFromGameComplete` early-returns, the document keydown handler ignores keys (and any event whose target is an `INPUT`), and the panel stops click/touchend propagation so taps inside it never reach the ending screen's restart handlers (touchend does **not** preventDefault — the browser must still synthesize clicks for input focus and the Save/Skip buttons). The last-used name is prefilled from `tableTossinPlayerName`; the input auto-focuses on desktop only.
 
@@ -124,5 +133,7 @@ If the finished run's `totalScore` beats the cut (`scoreQualifies`), a name-entr
 | `assets/dinerandscore.png` | In-game diner backdrop (DOM element behind the canvas) |
 | `assets/intro2.png` | Title-screen artwork (instructions baked in; goal copy is an HTML overlay) |
 | `assets/ham.png`, `bowling-ball.png` | Dormant — referenced only by commented-out `throwables` entries |
-| `package.json`, `pnpm-lock.yaml` | Vestigial deploy config; not used by the game |
+| `api/session.js`, `api/scores.js` | Vercel serverless leaderboard endpoints (`api/_util.js` is shared, not exposed) |
+| `db/schema.sql` | Postgres schema for the leaderboard (run once against the Neon DB) |
+| `package.json`, `pnpm-lock.yaml` | Deps for the `api/` functions only (`@neondatabase/serverless`) |
 | `todo/`, `docs/` | Author notes |
