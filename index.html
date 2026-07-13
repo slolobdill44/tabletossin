@@ -25,7 +25,7 @@
     <div class="canvas-bg canvas-bg-diner"></div>
     <div class="canvas-bg canvas-bg-flat"></div>
     <div class="shots-text">
-      <span class="shots-label">Tosses Left:</span><div class="shots-number">5</div>
+      <span class="shots-label">Tosses Left:</span><div class="shots-number">7</div>
       <div class="bonus-text">
         <div class="bonus-label">Bonus!
           <div class="bonus-timer">Next shot in: <span class="bonus-timer-value">0.00</span></div>
@@ -37,10 +37,21 @@
       Score:<div class="score-number">0</div>
     </div>
     <div class="welcome-badge">WELCOME</div>
-    <div class="stack-height"></div>
 
     <div id='title-screen'>
+      <div id='title-goal-text'>
+        Goal: land your tosses on the table!<br>
+        Land 5 or more to earn bonus tosses!
+      </div>
       <button id='start-game-btn' type='button'>Start Game</button>
+      <button id='title-leaderboard-btn' type='button'>Leaderboard</button>
+      <div id='title-leaderboard'>
+        <div class='leaderboard-panel'>
+          <div class='leaderboard-title'>Leaderboard</div>
+          <ol class='leaderboard-list' id='title-leaderboard-list'></ol>
+          <button class='leaderboard-close' id='title-leaderboard-close' type='button'>Close</button>
+        </div>
+      </div>
     </div>
 
     <div id='level-intro'>
@@ -76,9 +87,29 @@
     <div id='ending-screen'>
       <div class='ending-screen-text'>
         <div class='game-over-text'>Game Complete!</div>
-        <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
-        <div class='high-score-text'>Session High Score: <div class='high-score-number'>0</div></div>
-        <div class='game-over-text' id='restart-instructions'>Press any key to restart</div>
+        <div class='ending-columns'>
+          <div class='ending-main'>
+            <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
+            <div class='ending-breakdown'></div>
+            <div class='high-score-text'>Your All-Time High Score: <div class='high-score-number'>0</div></div>
+          </div>
+          <div class='leaderboard-panel'>
+            <div class='leaderboard-title'>Leaderboard</div>
+            <div class='leaderboard-entry-form'>
+              <div class='leaderboard-entry-prompt'>You made the top 10! Enter your initials:</div>
+              <input id='leaderboard-name' type='text' maxlength='3' placeholder='AAA' autocomplete='off'>
+              <div class='leaderboard-entry-buttons'>
+                <button id='leaderboard-save' type='button'>Save</button>
+                <button id='leaderboard-skip' type='button'>Skip</button>
+              </div>
+            </div>
+            <ol class='leaderboard-list'></ol>
+          </div>
+        </div>
+        <div class='ending-buttons'>
+          <button id='play-again-btn' type='button'>Play Again</button>
+          <button id='main-menu-btn' type='button'>Main Menu</button>
+        </div>
       </div>
     </div>
 
@@ -86,7 +117,6 @@
 
     <script>
       if (window.matchMedia('(pointer: coarse)').matches) {
-        document.getElementById('restart-instructions').textContent = 'Tap anywhere to restart';
         document.getElementById('bonus-end-continue').textContent = 'Tap to continue';
         document.getElementById('round-end-continue').textContent = 'Tap to continue';
       }
