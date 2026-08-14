@@ -11,7 +11,7 @@
 //    of elapsed play — bonus shots arrive on a fixed 2.5 s timer in the
 //    game, so a big score arriving quickly is physically impossible
 //  - name/score pass shape validation and the per-IP rate limit
-const { db, clientIp } = require('./_util');
+const { db, clientIp, recentCountForIp, methodNotAllowed, serverError } = require('./_util');
 
 const TOP_N = 10;
 const MAX_SCORE = 200;                 // absolute sanity cap
@@ -51,10 +51,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET') {
       return res.status(200).json({ entries: await topScores(sql) });
     }
-    if (req.method !== 'POST') {
-      res.setHeader('Allow', 'GET, POST');
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
+    if (req.method !== 'POST') return methodNotAllowed(res, 'GET, POST');
 
     const body = req.body || {};
     const token = typeof body.token === 'string' ? body.token : '';
@@ -70,10 +67,7 @@ module.exports = async function handler(req, res) {
     }
 
     const ip = clientIp(req);
-    const recent = await sql`
-      SELECT count(*)::int AS n FROM scores
-      WHERE ip = ${ip} AND created_at > now() - interval '1 minute'`;
-    if (recent[0].n >= SUBMITS_PER_IP_PER_MINUTE) {
+    if (await recentCountForIp(sql, 'scores', ip) >= SUBMITS_PER_IP_PER_MINUTE) {
       return res.status(429).json({ error: 'Too many submissions, slow down' });
     }
 
@@ -105,7 +99,6 @@ module.exports = async function handler(req, res) {
       you: inserted[0].id
     });
   } catch (err) {
-    console.error('scores error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return serverError(res, 'scores', err);
   }
 };

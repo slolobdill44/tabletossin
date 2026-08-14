@@ -34,6 +34,21 @@ All game logic lives in `lib/hamhuckin.js`, wrapped in `gameStart()` (called by 
 
 **Engine speed**: `GAME_SPEED` (top of the file, next to `CHEAT_MODE`) is the master speed multiplier — 1 = real time, 2 = the classic shipped feel, fractional values fine, minimum 1. A `Runner` `afterUpdate` hook steps the engine the extra `runner.delta × (GAME_SPEED − 1)` per frame, chunked into steps no larger than `runner.delta` (keeps integration accuracy speed-independent, and refresh-rate independent — fixed 16.67ms steps would run iOS slow). Whacker-pull pacing scales with it (the game loop runs per engine step); wall-clock timers (bonus timer, settle waits, transitions) do not. The hook early-returns while `fallingHammo` is set.
 
+### Shared helpers
+
+A small utility block sits at the top of `gameStart()` and is used throughout the file — prefer these over re-rolling the pattern:
+
+- `storageGet` / `storageSet` / `storageGetJSON` / `storageSetJSON` — all `localStorage` access (best-effort: reads fall back, writes fail silently)
+- `onTap(el, handler)` — the click + `touchend`-with-`preventDefault` pair every button/overlay needs
+- `restartAnimation(el)` — the forced-reflow trick for restarting class-gated keyframes
+- `fetchJSON(url, options)` — fetch + non-2xx-throws + `json()`, so callers can `.catch()` into the localStorage fallback
+- `setHudVisible`, `setScoreDisplay` (both score HUD copies), `setOverlayScoreLines`
+- `finishLevelTransition(levelScore, resumeRunner)` — the shared tail of every level-completion path (clear world, bank score, route to next intro or game complete); `resumeRunner` is for the bonus-end path, which stopped the `Runner`
+- `awardBonusShot()` — spawn + tag + HUD + `celebrateBonus` + `lockBonusBaseline` for a bonus toss
+- `resetRunState()` — reset per-run cumulative state (Play Again / Main Menu)
+
+`api/_util.js` holds the server-side equivalents: `db`, `clientIp`, `recentCountForIp` (per-IP rate-limit count), `methodNotAllowed`, `serverError`.
+
 ### Game flow (levels)
 
 Linear progression through `levels[]` — Level 1 Hamburger → Level 2 Fish → Level 3 Duck. Adding a level is one `levels[]` entry plus a matching `throwables` entry. Flow:

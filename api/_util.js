@@ -18,4 +18,26 @@ function clientIp(req) {
   return (req.socket && req.socket.remoteAddress) || 'unknown';
 }
 
-module.exports = { db, clientIp };
+// Per-IP rate limit shared by both endpoints: how many rows this IP has
+// written to `table` in the last minute. The table name is interpolated, so
+// it must never come from request data (both callers pass a literal).
+async function recentCountForIp(sql, table, ip) {
+  const rows = await sql.query(
+    `SELECT count(*)::int AS n FROM ${table}
+     WHERE ip = $1 AND created_at > now() - interval '1 minute'`,
+    [ip]
+  );
+  return rows[0].n;
+}
+
+function methodNotAllowed(res, allow) {
+  res.setHeader('Allow', allow);
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+function serverError(res, label, err) {
+  console.error(label + ' error:', err);
+  return res.status(500).json({ error: 'Server error' });
+}
+
+module.exports = { db, clientIp, recentCountForIp, methodNotAllowed, serverError };
