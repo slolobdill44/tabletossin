@@ -4,7 +4,7 @@
 // start. Its age at score-submission time drives the duration-vs-score
 // bound in api/scores.js, and single-use means one submission per game
 // actually played.
-const { db, clientIp } = require('./_util');
+const { db, clientIp, serverError } = require('./_util');
 
 const TOKENS_PER_IP_PER_MINUTE = 12;
 
@@ -20,14 +20,18 @@ module.exports = async function handler(req, res) {
     const recent = await sql`
       SELECT count(*)::int AS n FROM sessions
       WHERE ip = ${ip} AND created_at > now() - interval '1 minute'`;
-    if (recent[0].n >= TOKENS_PER_IP_PER_MINUTE) {
+    if (recent.length && recent[0].n >= TOKENS_PER_IP_PER_MINUTE) {
       return res.status(429).json({ error: 'Too many sessions, slow down' });
     }
 
     const rows = await sql`INSERT INTO sessions (ip) VALUES (${ip}) RETURNING token`;
+    // Without this a failed insert would answer 200 with token: undefined,
+    // and the client would only discover it at submit time.
+    if (rows.length === 0 || !rows[0].token) {
+      throw new Error('session insert returned no token');
+    }
     return res.status(200).json({ token: rows[0].token });
   } catch (err) {
-    console.error('session error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return serverError(res, err, 'POST /api/session');
   }
 };
