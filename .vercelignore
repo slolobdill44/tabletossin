@@ -1,0 +1,9 @@
+# Internal notes and the database schema are part of the repo but should not be
+# served as static files from the deployment.
+CLAUDE.md
+README.md
+backlog.json
+backlog.md
+db/
+docs/
+todo/
