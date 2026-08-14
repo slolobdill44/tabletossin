@@ -8,7 +8,7 @@
 //  - the duration-vs-score bound holds: the game must have run at least
 //    MIN_GAME_SECONDS, and the score can't exceed the 21 base points
 //    (3 levels × 7 tosses) plus one bonus point per BONUS_SECONDS_PER_POINT
-//    of elapsed play — bonus shots arrive on a fixed 2.5 s timer in the
+//    of elapsed play — bonus shots arrive on that fixed timer in the
 //    game, so a big score arriving quickly is physically impossible
 //  - name/score pass shape validation and the per-IP rate limit
 const { db, clientIp } = require('./_util');
@@ -17,7 +17,7 @@ const TOP_N = 10;
 const MAX_SCORE = 200;                 // absolute sanity cap
 const MIN_GAME_SECONDS = 12;           // floor for a physically possible 3-level run
 const BASE_MAX_SCORE = 21;             // 3 levels × SHOTS_PER_LEVEL (7) base tosses
-const BONUS_SECONDS_PER_POINT = 2.0;   // BONUS_DELAY_MS in lib/hamhuckin.js
+const BONUS_SECONDS_PER_POINT = 2.5;   // BONUS_DELAY_MS in lib/hamhuckin.js
 const SUBMITS_PER_IP_PER_MINUTE = 4;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
