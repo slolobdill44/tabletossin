@@ -529,6 +529,15 @@ img  {
   color: #7a6a52;
 }
 
+/* Appended by renderLeaderboard when the standings did not come from the
+   server (offline, local dev, backend down, failed submission). */
+.leaderboard-note {
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  color: #9c5b1f;
+}
+
 .leaderboard-entry-form {
   display: none;  /* shown by JS when the score makes the cut */
   margin-top: 10px;

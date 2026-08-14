@@ -11,7 +11,7 @@
 //    of elapsed play — bonus shots arrive on a fixed 2.5 s timer in the
 //    game, so a big score arriving quickly is physically impossible
 //  - name/score pass shape validation and the per-IP rate limit
-const { db, clientIp } = require('./_util');
+const { db, clientIp, serverError, parseJsonBody } = require('./_util');
 
 const TOP_N = 10;
 const MAX_SCORE = 200;                 // absolute sanity cap
@@ -37,6 +37,18 @@ function cleanName(raw) {
   return name;
 }
 
+// The token was already consumed when this is called, so hand it back: the
+// submission failed for a server-side reason and a retry must not be rejected
+// as an invalid session. Best-effort — a failure here is logged, not fatal,
+// and the caller still reports the original error.
+async function releaseToken(sql, token) {
+  try {
+    await sql`UPDATE sessions SET used = false WHERE token = ${token}::uuid`;
+  } catch (err) {
+    console.error('ERROR releasing session token after a failed insert:', (err && err.stack) || err);
+  }
+}
+
 function topScores(sql) {
   return sql`
     SELECT id, name, score FROM scores
@@ -56,7 +68,13 @@ module.exports = async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const body = req.body || {};
+    let body;
+    try {
+      body = parseJsonBody(req);
+    } catch (err) {
+      console.warn('POST /api/scores: unparseable body:', err.message);
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
     const token = typeof body.token === 'string' ? body.token : '';
     const name = cleanName(body.name);
     const score = body.score;
@@ -73,7 +91,7 @@ module.exports = async function handler(req, res) {
     const recent = await sql`
       SELECT count(*)::int AS n FROM scores
       WHERE ip = ${ip} AND created_at > now() - interval '1 minute'`;
-    if (recent[0].n >= SUBMITS_PER_IP_PER_MINUTE) {
+    if (recent.length && recent[0].n >= SUBMITS_PER_IP_PER_MINUTE) {
       return res.status(429).json({ error: 'Too many submissions, slow down' });
     }
 
@@ -88,6 +106,12 @@ module.exports = async function handler(req, res) {
       return res.status(403).json({ error: 'Invalid session' });
     }
     const elapsed = Number(consumed[0].elapsed);
+    // A non-numeric elapsed would make both bounds below compare false and
+    // wave the submission through, so treat it as a server fault.
+    if (!Number.isFinite(elapsed)) {
+      await releaseToken(sql, token);
+      throw new Error('session row returned a non-numeric elapsed: ' + consumed[0].elapsed);
+    }
 
     if (elapsed < MIN_GAME_SECONDS) {
       return res.status(403).json({ error: 'Implausible game duration' });
@@ -97,15 +121,21 @@ module.exports = async function handler(req, res) {
       return res.status(403).json({ error: 'Implausible score for game duration' });
     }
 
-    const inserted = await sql`
-      INSERT INTO scores (name, score, ip) VALUES (${name}, ${score}, ${ip})
-      RETURNING id`;
+    let inserted;
+    try {
+      inserted = await sql`
+        INSERT INTO scores (name, score, ip) VALUES (${name}, ${score}, ${ip})
+        RETURNING id`;
+      if (inserted.length === 0) throw new Error('score insert returned no row');
+    } catch (err) {
+      await releaseToken(sql, token);
+      throw err;
+    }
     return res.status(200).json({
       entries: await topScores(sql),
       you: inserted[0].id
     });
   } catch (err) {
-    console.error('scores error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return serverError(res, err, req.method + ' /api/scores');
   }
 };
