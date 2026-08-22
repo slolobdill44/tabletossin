@@ -2,7 +2,7 @@
 
 [Live App][live]
 
-[live]: https://hamhuckin.vercel.app/
+[live]: https://tabletossin.vercel.app/
 
 Table Tossin' (page title "Table Toss") is a browser-based physics game built with [Matter.js][matter]. Pick an object, wind up the spatula, and launch your projectile off the paddle — the goal is to land it on the table for points.
 
