@@ -24,6 +24,16 @@ Without the API running, the leaderboard silently falls back to localStorage —
 
 `CHEAT_MODE` at the top of `lib/hamhuckin.js` widens the table (and turns on wireframes) so the bonus/game-over flows can be exercised quickly. Keep it `false` in commits.
 
+## Tests
+
+`pnpm test` (or `npm test`) runs the Node built-in test runner over `test/` —
+unit tests for the `api/` serverless functions, no extra dependencies.
+`pnpm test:coverage` adds a coverage report. The handlers are loaded with
+`./_util` stubbed (`test/helpers/http.js`) and queries served by a fake tagged
+template (`test/helpers/fake-sql.js`), so nothing touches a database. The game
+itself (`lib/hamhuckin.js`) has no tests — its logic lives in closures inside
+`gameStart()` and would need extraction first.
+
 ## Architecture
 
 All game logic lives in `lib/hamhuckin.js`, wrapped in `gameStart()` (called by `<body onload="gameStart()">`).
@@ -141,4 +151,5 @@ If the finished run's `totalScore` beats the cut (`scoreQualifies`), a name-entr
 | `vercel.json` | Response headers (`nosniff`, `Referrer-Policy`, `no-store` on `/api`) |
 | `.vercelignore` | Keeps internal notes and `db/schema.sql` out of the deployment |
 | `package.json`, `pnpm-lock.yaml` | Deps for the `api/` functions only (`@neondatabase/serverless`) |
+| `test/` | Node built-in-runner unit tests for `api/` |
 | `todo/`, `docs/` | Author notes |
