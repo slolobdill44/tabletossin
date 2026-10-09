@@ -44,4 +44,10 @@ document.onkeyup = function (keys) {
 };
 ```
 
-You get 5 shots per round. Your score is the number of objects that come to rest on the table (in the column above the landing pad) — pieces still in flight or that have fallen off don't count. Once all shots are used and everything has settled, the round ends and your score is tallied against your session high score.
+ Upon releasing the space bar, the hidden spring is removed, causing the whacker to throw or hit the current target object. Points are given out for every object that remains on the platform after 5 objects have been spawned.
+
+## Planned Features
+
+ * Randomly generated levels. This will be a challenge since the user should theoretically be able to complete every level.
+
+ * A high score leaderboard.  The user will receive a score for their streak of successful tosses and be able to display their score on the leaderboard.
