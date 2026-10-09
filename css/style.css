@@ -238,15 +238,16 @@ img  {
 
 
 .score-text{
-  display: none;
-  font-family: 'Bungee Inline', cursive;
-  top: 65px;
-  left: 526px;
-  width: 390px;
-  text-align: center;
-  font-size: 29px;
+  font-family: 'Dosis', sans-serif;
+  top: 115px;
+  left: 100px;
+  width: 1050px;
+  box-sizing: border-box;
+  padding-right: 87px;
+  text-align: right;
+  font-size: 34px;
   position: absolute;
-  z-index: 10;
+  pointer-events: none;
 }
 
 .score-number {
