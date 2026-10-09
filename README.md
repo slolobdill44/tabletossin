@@ -50,4 +50,4 @@ document.onkeyup = function (keys) {
 
  * Randomly generated levels. This will be a challenge since the user should theoretically be able to complete every level.
 
- * A high score leaderboard.  The user will receive a score for their streak of successful tosses and be able to display their score on the leaderboard.
+ * A high score leaderboard.The user will receive a score for their streak of successful tosses and be able to display their score on the leaderboard.
