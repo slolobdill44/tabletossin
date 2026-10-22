@@ -14,10 +14,18 @@
 const { db, clientIp } = require('./_util');
 
 const TOP_N = 10;
+// The gameplay numbers below are mirrored BY HAND from lib/hamhuckin.js
+// (no shared file; the client has no build step). The client is the source
+// of truth: SHOTS_PER_LEVEL (7), levels[] (4 levels) and BONUS_DELAY_MS
+// (2500 ms). Update both files together.
 const MAX_SCORE = 200;                 // absolute sanity cap
 const MIN_GAME_SECONDS = 16;           // floor for a physically possible 4-level run
 const BASE_MAX_SCORE = 28;             // 4 levels × SHOTS_PER_LEVEL (7) base tosses
-const BONUS_SECONDS_PER_POINT = 2.5;   // BONUS_DELAY_MS in lib/hamhuckin.js
+// Mirrors BONUS_DELAY_MS in lib/hamhuckin.js (2500 ms = 2.5 s today). This is
+// only an anti-cheat ceiling, so if the two ever drift, keep the server value
+// at or below the client's: slack is intentional, because the server must never
+// reject a legitimately fast player over timing jitter or network latency.
+const BONUS_SECONDS_PER_POINT = 2.5;
 const SUBMITS_PER_IP_PER_MINUTE = 4;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
