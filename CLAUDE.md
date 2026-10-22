@@ -36,7 +36,7 @@ All game logic lives in `lib/hamhuckin.js`, wrapped in `gameStart()` (called by 
 
 ### Game flow (levels)
 
-Linear progression through `levels[]` — Level 1 Hamburger → Level 2 Fish → Level 3 Duck. Adding a level is one `levels[]` entry plus a matching `throwables` entry. Flow:
+Linear progression through `levels[]` — Level 1 Hamburger → Level 2 Fish → Level 3 Duck → Level 4 Toy Boat. Adding a level is one `levels[]` entry plus a matching `throwables` entry. Flow:
 
 1. Title screen (`#title-screen`, artwork + Start button + `#title-goal-text` overlay copy).
 2. `showLevelIntro(idx, …)` splash → `startLevel(idx)` (spawns state during the splash's `preReveal` so nothing flashes).
@@ -130,7 +130,7 @@ If the finished run's `totalScore` beats the cut (`scoreQualifies`), a name-entr
 | `lib/matter.js` | Matter.js 0.11.1 physics/rendering (vendored) |
 | `lib/decomp.min.js` | Polygon decomposition for `Bodies.fromVertices` (vendored) |
 | `css/style.css` | All styling; Dosis + Bungee Inline fonts; `(pointer: coarse)` media query for mobile |
-| `assets/hamburger.png`, `fish.png`, `rubber-duck.png` | Throwable sprites (one per level) |
+| `assets/hamburger.png`, `fish.png`, `rubber-duck.png`, `toy-boat.png` | Throwable sprites (one per level) |
 | `assets/spatula.png` | Whacker sprite |
 | `assets/tabletop.png`, `tableleg.png` | Landing pad parts |
 | `assets/dinerandscore.png` | In-game diner backdrop (DOM element behind the canvas) |
