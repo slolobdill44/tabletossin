@@ -2,46 +2,62 @@
 
 [Live App][live]
 
-[live]: https://tabletossin.vercel.app/
+[live]: https://tabletossin.vercel.app
 
-Table Tossin' (page title "Table Toss") is a browser-based physics game built with [Matter.js][matter]. Pick an object, wind up the spatula, and launch your projectile off the paddle — the goal is to land it on the table for points.
+Table Tossin' (page title "Table Toss") is a browser-based physics game built with [Matter.js][matter]. Wind up the spatula, launch food off it, and try to land your tosses on the diner table for points.
 
 [matter]: http://brm.io/matter-js/
 
-_[Screenshot placeholder — add gameplay image here]_
+![Table Tossin' gameplay: a hamburger mid-air above the spatula, with three burgers stacked on the table and the Tosses Left and Score counters at the top](assets/newhamhuckscreenshot.png)
 
 ### Technologies
 
-This game utilizes vanilla JS for all game logic and Matter.js for rendering and physics. There is no build system — the game runs by opening `index.html` directly in a browser.
+This game utilizes vanilla JS for all game logic and Matter.js for rendering and physics. There is no build system — the game runs by opening `index.html` directly in a browser. The only npm dependency (`@neondatabase/serverless`) is for the leaderboard's Vercel serverless functions in `api/`, not the game itself.
 
 ## Playing
 
-Choose a throwable — a burger, a fish, or a rubber duck — from the title screen. Each object has its own weight, friction, and bounciness, so they fly and settle differently.
+The game is a four-level run, one object per level, played in order:
+
+1. Hamburger
+2. Fish
+3. Duck
+4. Toy Boat
+
+Each object has its own weight, friction, and bounciness, so they fly and settle differently. You get **7 tosses per level**, and your total score carries across all four levels.
 
 To launch, pull back the spatula-shaped whacker and release:
 
-- **Desktop:** hold the spacebar to wind the whacker back against a hidden spring, then release to fire.
+- **Desktop:** hold the spacebar to wind the whacker back, then release to fire.
 - **Mobile:** tap and hold anywhere on the play area to pull back, then let go to fire.
 
-The whacker is held, pulled back, and fired by a stack of Matter.js constraints — a fixed pivot at its left end, a soft return spring, a leveling constraint, a pullback constraint that builds tension while you hold input, and a freeze that locks it at rest between shots. Releasing removes the pullback constraint, and the stored spring tension whips the whacker forward to launch your object.
+The whacker is a single damped spring pivoted at its left end. Holding input slides the spring's anchor back to build tension; releasing snaps the anchor to rest and the spring whips the whacker forward.
+
+Your level score is the number of objects that come to rest on the table (in the column above it) — pieces still in flight or that have fallen off don't count. After the last toss, once everything has settled, the level ends and you move on to the next one.
+
+## Bonus mode
+
+If **5 or more objects are scoring** when a level's round ends, you enter bonus mode (a perfect round isn't required). The camera zooms out to keep your stack in frame and you get timed bonus shots — a new one every couple of seconds, with a countdown in the HUD. Keep tossing for as long as you can; the bonus ends the moment an object falls off the table, and your score is banked.
+
+## Leaderboard
+
+The top 10 runs are kept on a leaderboard, shown on the game-complete screen and from the title screen. If your total makes the cut, enter arcade-style initials (letters and digits, up to 3 characters).
+
+Scores are server-backed through the serverless functions in `api/`. If the server isn't reachable (offline, opened from `file://`, or the backend is down), the leaderboard silently falls back to a list in `localStorage` and everything else works as usual.
+
+## Running locally
+
+Open `index.html` in a browser. To use a local server instead:
 
 ```
-// when input is held, the pullback anchor is dragged left and down, building tension
-document.onkeydown = function (keys) {
-  if (keys.keyCode === 32 && whackerPullbackAnchor.x > 120) {
-    whackerPullbackAnchor.x -= 8;
-    whackerPullbackAnchor.y += 8;
-  }
-};
-
-// on release, the pullback constraint is removed and the spring fires the whacker
-document.onkeyup = function (keys) {
-  if (keys.keyCode === 32) {
-    World.remove(engine.world, whackerPullback);
-    whackerPullbackAnchor.x = pullbackPosition[0];
-    whackerPullbackAnchor.y = pullbackPosition[1];
-  }
-};
+npx serve .
+# or
+python3 -m http.server
 ```
 
-You get 5 shots per round. Your score is the number of objects that come to rest on the table (in the column above the landing pad) — pieces still in flight or that have fallen off don't count. Once all shots are used and everything has settled, the round ends and your score is tallied against your session high score.
+To also run the `api/` leaderboard functions locally, use the Vercel CLI (the functions read `DATABASE_URL`):
+
+```
+vercel dev
+```
+
+All game logic lives in `lib/hamhuckin.js`. The project was renamed to Table Tossin', but that file (and the repo directory) kept its historical `hamhuckin` name. See `CLAUDE.md` for architecture notes.
