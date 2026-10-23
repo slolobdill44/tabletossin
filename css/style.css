@@ -482,6 +482,17 @@ img  {
   color: #C8302C;
 }
 
+/* Shown by JS when the list came from the localStorage fallback. Hidden
+   with visibility (not display) so the panel height never changes. */
+.leaderboard-offline {
+  visibility: hidden;
+  font-family: 'Dosis', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1;
+  color: #7a6a52;
+}
+
 .leaderboard-list {
   list-style: none;
   margin: 10px 0 0;
@@ -757,6 +768,7 @@ img  {
   .breakdown-best { font-size: 12px; }
   .leaderboard-panel { width: 380px; padding: 12px 16px 14px; }
   .leaderboard-title { font-size: 26px; }
+  .leaderboard-offline { font-size: 16px; }
   .leaderboard-list { font-size: 21px; }
   .leaderboard-list li { gap: 12px; padding: 2px 6px; }
   .lb-rank { font-size: 15px; width: 26px; }
