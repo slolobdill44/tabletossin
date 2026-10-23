@@ -37,6 +37,17 @@
       Score:<div class="score-number">0</div>
     </div>
     <div class="welcome-badge">WELCOME</div>
+    <button id='run-menu-btn' type='button'>Menu (R)</button>
+
+    <div id='run-menu'>
+      <div class='run-menu-panel'>
+        <div class='run-menu-title'>Paused</div>
+        <button id='run-menu-restart' type='button'>Restart Run</button>
+        <button id='run-menu-quit' type='button'>Quit to Title</button>
+        <button id='run-menu-resume' type='button'>Resume</button>
+        <div class='run-menu-hint' id='run-menu-hint'>Press R or Esc to resume</div>
+      </div>
+    </div>
 
     <div id='title-screen'>
       <!-- <div id='title-goal-text'>
@@ -127,6 +138,8 @@
       if (window.matchMedia('(pointer: coarse)').matches) {
         document.getElementById('bonus-end-continue').textContent = 'Tap to continue';
         document.getElementById('round-end-continue').textContent = 'Tap to continue';
+        document.getElementById('run-menu-btn').textContent = 'Menu';
+        document.getElementById('run-menu-hint').textContent = 'Tap Resume to keep playing';
       }
     </script>
   </body>
