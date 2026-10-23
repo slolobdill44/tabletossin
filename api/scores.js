@@ -1,6 +1,8 @@
-// GET  /api/scores → { entries: [{ id, name, score }] }   (top 10)
+// GET  /api/scores → { entries: [{ id, name, score }] }   (top 10, best per name)
 // POST /api/scores   body { token, name, score }
 //                  → { entries: [...], you: <inserted id> }
+//                    (`you` may be absent from entries if the name already
+//                    has an equal or higher score on the board)
 //
 // A POST is accepted only if ALL of:
 //  - the token exists, is unused, and is younger than 2 hours; it's marked
@@ -45,9 +47,15 @@ function cleanName(raw) {
   return name;
 }
 
+// One row per name (case-insensitive): each name's best score, earliest
+// submission winning ties, so one frequent player can't fill the board.
 function topScores(sql) {
   return sql`
-    SELECT id, name, score FROM scores
+    SELECT id, name, score FROM (
+      SELECT DISTINCT ON (lower(name)) id, name, score, created_at
+      FROM scores
+      ORDER BY lower(name), score DESC, created_at ASC
+    ) best
     ORDER BY score DESC, created_at ASC
     LIMIT ${TOP_N}`;
 }
