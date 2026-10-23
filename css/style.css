@@ -736,6 +736,77 @@ img  {
   }
 }
 
+/* Rotate prompt: the 1050x602 game only fills the top third of a portrait
+   phone, so ask for landscape instead. Phones only (max-width keeps portrait
+   tablets, where the game is still a usable size, unchanged). */
+#rotate-prompt { display: none; }
+
+@media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
+  #rotate-prompt {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #e1d4c0;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .rotate-prompt-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .rotate-prompt-phone {
+    width: 46px;
+    height: 80px;
+    border: 5px solid #C8302C;
+    border-radius: 10px;
+    box-sizing: border-box;
+    margin-bottom: 28px;
+    animation: rotatePromptTurn 2.4s ease-in-out infinite;
+  }
+
+  .rotate-prompt-title {
+    font-family: 'Bungee Inline', cursive;
+    font-size: 34px;
+    color: #C8302C;
+  }
+
+  .rotate-prompt-text {
+    font-family: 'Dosis', sans-serif;
+    font-size: 20px;
+    color: #333;
+    margin-top: 14px;
+  }
+
+  @keyframes rotatePromptTurn {
+    0%, 20%   { transform: rotate(0deg); }
+    50%, 80%  { transform: rotate(-90deg); }
+    100%      { transform: rotate(0deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rotate-prompt-phone {
+      animation: none;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
 /* Ending-screen readability at phone scale: the fixed 1050px layout gets
    CSS-scaled to ~0.35x on portrait phones, so text set for desktop becomes
    unreadably small. Bump relative sizes and tighten gaps on touch devices
