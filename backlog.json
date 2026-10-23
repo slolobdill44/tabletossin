@@ -17,7 +17,7 @@
     "depends_on": [
       "Fix bonus ending instantly from floor debris"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "title": "Shrink multi-megabyte artwork and delete unused",

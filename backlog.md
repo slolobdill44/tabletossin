@@ -6,7 +6,7 @@ Same content as `backlog.json`; keep the two in sync when statuses change.
 | # | Title | Category | Priority | Effort | Depends on | What / why |
 |---|-------|----------|----------|--------|------------|------------|
 | 1 | ✅ Fix bonus ending instantly from floor debris | bug | high | small | — | Bonus entry tags every on-screen hammo, including floor-resting misses whose y (~545–565) sits inside the 530–602 falling band with jittery velocity — the bonus can end the moment it starts. Regression from the 5-of-7 threshold. Tag only pieces in the table column and require real downward velocity. |
-| 2 | Define missed bonus shot behavior explicitly | gameplay | high | small | #1 | A missed bonus toss ends the run only by accident today. Decide: miss = bonus over (high stakes) or misses forgiven; implement deliberately. |
+| 2 | ✅ Define missed bonus shot behavior explicitly | gameplay | high | small | #1 | A missed bonus toss ends the run only by accident today. Decide: miss = bonus over (high stakes) or misses forgiven; implement deliberately. |
 | 3 | Shrink multi-megabyte artwork and delete unused | performance | high | small | — | dinerandscore.png is 5.5MB and ~8MB of assets are referenced by nothing (scoreboard.png, diner1/2/5). Recompress + delete = biggest time-to-first-toss win. |
 | 4 | ✅ Filter offensive leaderboard names server-side | polish | high | small | — | Public top-10 accepts any 12-char name. Denylist/normalize in the POST before launch. |
 | 5 | ✅ Prevent duplicate leaderboard submissions | bug | medium | small | — | Double-click Save / held Enter duplicates local entries (server is token-safe). Close the form synchronously; ignore key repeats. |
