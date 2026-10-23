@@ -3,8 +3,9 @@
   transform-origin: top left;
   width: 1050px;
   position: relative;
-  left : 3%;
-  right-padding: 3%;
+  /* Centered when the window is wider than the game. When applyMobileScale()
+     scales the game down it sets an inline margin-left, which wins. */
+  margin: 0 auto;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -253,6 +254,7 @@ img  {
 
 #game-screen {
   margin-left: 0;
+  margin-right: 0;
   margin-top: 80px;
 }
 
