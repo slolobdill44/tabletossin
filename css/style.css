@@ -138,6 +138,13 @@ img  {
   outline: none;
 }
 
+#start-game-btn:focus-visible {
+  outline: 4px solid #C8302C;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 8px #fffbef;
+  border-radius: 12px;
+}
+
 #level-intro {
   position: absolute;
   left: 0;
@@ -559,6 +566,11 @@ img  {
   outline: none;
 }
 
+#leaderboard-name:focus-visible {
+  outline: 3px solid #333;
+  outline-offset: 2px;
+}
+
 .leaderboard-entry-buttons {
   display: flex;
   gap: 10px;
@@ -764,4 +776,13 @@ img  {
   .leaderboard-entry-prompt { font-size: 20px; }
   #leaderboard-name { font-size: 26px; width: 120px; }
   .leaderboard-entry-buttons button { font-size: 17px; padding: 7px 18px; }
+}
+
+/* Reduced motion: drop the chrome's text reveals, fades, bonus pulse and
+   sparks. JS skips the sparks/celebrate and shortens the intro fade to match. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
