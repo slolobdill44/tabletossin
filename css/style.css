@@ -47,7 +47,7 @@
   pointer-events: none;
 }
 .canvas-bg-diner {
-  background: url('../assets/dinerandscore.png') center / cover no-repeat;
+  background: url('../assets/dinerandscore.webp') center / cover no-repeat;
   display: block;
 }
 .canvas-bg-flat {
@@ -101,7 +101,7 @@ img  {
   top: 0;
   width: 1050px;
   height: 602px;
-  background: #A8C5C7 url('../assets/intro2.png') center / 1050px 602px no-repeat;
+  background: #A8C5C7 url('../assets/intro2.webp') center / 1050px 602px no-repeat;
   z-index: 100;
   display: block;
 }
