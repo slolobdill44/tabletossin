@@ -33,7 +33,7 @@
         <div class="bonus-explainer">Shoot until any object is knocked off</div>
       </div>
     </div>
-    <div class="score-text">
+    <div class="score-text" aria-live="polite">
       Score:<div class="score-number">0</div>
     </div>
     <div class="welcome-badge">WELCOME</div>
@@ -63,8 +63,8 @@
         <div class='level-intro-title'>Level 1</div>
         <div class='level-intro-label'>Hamburger</div>
         <img class='level-intro-img' src='' alt=''>
-        <div class='level-intro-last-score'></div>
-        <div class='level-intro-score'></div>
+        <div class='level-intro-last-score' aria-live="polite"></div>
+        <div class='level-intro-score' aria-live="polite"></div>
       </div>
     </div>
 
@@ -72,8 +72,8 @@
       <div class='bonus-end-content'>
         <div class='bonus-end-title'>Bonus Ended</div>
         <div class='bonus-end-reason'>An object fell off!</div>
-        <div class='bonus-end-score'>Level score: 0</div>
-        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-score' aria-live="polite">Level score: 0</div>
+        <div class='bonus-end-total' aria-live="polite">Total Score: 0</div>
         <div class='bonus-end-continue' id='bonus-end-continue'>Press any key to continue</div>
       </div>
     </div>
@@ -82,8 +82,8 @@
       <div class='bonus-end-content'>
         <div class='bonus-end-title'>Round Ended</div>
         <div class='bonus-end-reason'> </div>
-        <div class='bonus-end-score'>Level score: 0</div>
-        <div class='bonus-end-total'>Total Score: 0</div>
+        <div class='bonus-end-score' aria-live="polite">Level score: 0</div>
+        <div class='bonus-end-total' aria-live="polite">Total Score: 0</div>
         <div class='bonus-end-continue' id='round-end-continue'>Press any key to continue</div>
       </div>
     </div>
@@ -93,9 +93,9 @@
         <div class='game-over-text'>Game Complete!</div>
         <div class='ending-columns'>
           <div class='ending-main'>
-            <div class='ending-score-text'>Your final score: <div class='score-number'>0</div></div>
-            <div class='ending-breakdown'></div>
-            <div class='high-score-text'>Your All-Time High Score: <div class='high-score-number'>0</div></div>
+            <div class='ending-score-text' aria-live="polite">Your final score: <div class='score-number'>0</div></div>
+            <div class='ending-breakdown' aria-live="polite"></div>
+            <div class='high-score-text' aria-live="polite">Your All-Time High Score: <div class='high-score-number'>0</div></div>
           </div>
           <!-- Leaderboard is disabled for now (server backend only works locally) —
                see the commented-out block in lib/hamhuckin.js. -->
@@ -104,7 +104,7 @@
             <div class='leaderboard-title'>Leaderboard</div>
             <div class='leaderboard-entry-form'>
               <div class='leaderboard-entry-prompt'>You made the top 10! Enter your initials:</div>
-              <input id='leaderboard-name' type='text' maxlength='3' placeholder='AAA' autocomplete='off'>
+              <input id='leaderboard-name' type='text' maxlength='3' placeholder='AAA' autocomplete='off' aria-label="Your initials">
               <div class='leaderboard-entry-buttons'>
                 <button id='leaderboard-save' type='button'>Save</button>
                 <button id='leaderboard-skip' type='button'>Skip</button>
