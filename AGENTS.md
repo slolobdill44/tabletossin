@@ -64,9 +64,11 @@ Cumulative `totalScore` is shown in the HUD and carried across levels. `window.s
 
 Two constraints only: `whackerPivot` (fixed left-end pivot) and `whackerReturn` (damped spring to `whackerReturnAnchor`). While input is held (`pullHeld`), the game loop lerps `whackerReturnAnchor` toward `whackerPulledAnchor`; on release the anchor snaps back to `whackerRestAnchor` and the spring fires the whacker. No constraints are added/removed at runtime. The loop also clamps upward rotation (soft brake near `-0.21` rad, hard stop at it) so a strong fire can't strand the whacker angled up.
 
+**Power meter**: a canvas-drawn vertical POWER gauge left of the spatula (`POWER_METER = { x: 24, y: 80, w: 40, h: 230 }`, world coordinates). The game loop sets `whackerPullProgress` each engine step (0 at `whackerRestAnchor`, 1 at `whackerPulledAnchor`: the projection of `whackerReturnAnchor` onto that segment, clamped, and 0 when `pullHeld` is false; reset in `startLevel`). An `afterRender` listener draws it inside `startViewTransform`/`endViewTransform` (so it stays beside the whacker under bonus zoom): while `pullHeld` the displayed fill follows `whackerPullProgress` (green → yellow → red); after release it drains to empty over `POWER_METER_DRAIN_MS` (350 ms, wall clock) while the whacker itself still snaps back immediately. It is on screen and empty for the whole level, and skipped (fill reset to 0) when `gameOver`, `pickingNew`, `fallingHammo`, `awaitingBonusEndContinue` or `awaitingRoundEndContinue` is set or `#level-intro` is `.active`.
+
 ### Custom sprite rendering (concave bodies)
 
-For throwables with concave `vertices`, `spawnHammo()` uses `Bodies.fromVertices`, which splits the body into parts. Matter would draw the sprite once per part, so per-part rendering is suppressed and the parent is tagged with `customSprite`; an `Events.on(render, 'afterRender')` listener draws each tagged hammo once at the parent centroid using `spriteCache`. All gameplay art is preloaded through the same cache at boot (`preloadArt`) so nothing pops in on the first toss. **Sprite art must assume the body's natural width/height** — no scaling at draw time. Both custom-draw listeners (sprites, red circle) wrap their drawing in the local `startViewTransform`/`endViewTransform` helpers so they track the bonus zoom (Matter 0.11.1 resets the canvas transform before firing `afterRender`).
+For throwables with concave `vertices`, `spawnHammo()` uses `Bodies.fromVertices`, which splits the body into parts. Matter would draw the sprite once per part, so per-part rendering is suppressed and the parent is tagged with `customSprite`; an `Events.on(render, 'afterRender')` listener draws each tagged hammo once at the parent centroid using `spriteCache`. All gameplay art is preloaded through the same cache at boot (`preloadArt`) so nothing pops in on the first toss. **Sprite art must assume the body's natural width/height** — no scaling at draw time. All custom-draw listeners (sprites, red circle, power meter) wrap their drawing in the local `startViewTransform`/`endViewTransform` helpers so they track the bonus zoom (Matter 0.11.1 resets the canvas transform before firing `afterRender`).
 
 ### Round-end resolution (in the `afterUpdate` game loop)
 
@@ -173,4 +175,3 @@ routes each one: `route:devin` (anything that has to be seen or played) goes to 
 ### Game rules decided by Adrian
 
 - A bonus shot that misses the table ends the bonus (deliberate rule, 2026-10-23).
-
