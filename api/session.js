@@ -7,6 +7,9 @@
 const { db, clientIp } = require('./_util');
 
 const TOKENS_PER_IP_PER_MINUTE = 12;
+// Rows older than this are pruned. Must stay well above the 2 h token
+// validity in api/scores.js, so a still-usable token is never deleted.
+const PRUNE_AFTER = '1 day';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,6 +28,14 @@ module.exports = async function handler(req, res) {
     }
 
     const rows = await sql`INSERT INTO sessions (ip) VALUES (${ip}) RETURNING token`;
+
+    // Opportunistic cleanup (no cron): a failure here must never block the token.
+    try {
+      await sql`DELETE FROM sessions WHERE created_at < now() - ${PRUNE_AFTER}::interval`;
+    } catch (pruneErr) {
+      console.error('session prune error:', pruneErr);
+    }
+
     return res.status(200).json({ token: rows[0].token });
   } catch (err) {
     console.error('session error:', err);
